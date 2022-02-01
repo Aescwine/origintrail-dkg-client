@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.origintrail.dkg.client.exception.DkgClientException;
 import io.origintrail.dkg.client.exception.HttpResponseException;
 import io.origintrail.dkg.client.exception.UnexpectedException;
+import io.origintrail.dkg.client.http.HttpMediaType;
+import io.origintrail.dkg.client.http.MultiPartBody;
 import io.origintrail.dkg.client.model.HttpUrlOptions;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -37,10 +39,18 @@ class ApiClient {
                 .build();
     }
 
+    HttpRequest createMultiPartFormRequest(URI uri, MultiPartBody.MultiPartBodyBuilder bodyPublisher) {
+        return HttpRequest.newBuilder()
+                .uri(uri)
+                .header("Content-Type", HttpMediaType.MULTIPART_FORM_DATA.value() + "; boundary=" + bodyPublisher.getBoundary())
+                .POST(bodyPublisher.build())
+                .build();
+    }
+
     public <T> CompletableFuture<T> sendAsyncRequest(HttpRequest request, Class<T> contentClass) throws DkgClientException {
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(r -> {
-                    if (r.statusCode() == 200 && r.body() != null) {
+                    if (isSuccessResponse(r) && r.body() != null) {
                         try {
                             return transformBody(r, contentClass);
                         } catch (JsonProcessingException e) {
@@ -54,6 +64,10 @@ class ApiClient {
                     logger.error("Unexpected error sending http request: {}", ex.getMessage());
                     throw new UnexpectedException(ex.getMessage(), ex.getCause());
                 });
+    }
+
+    private boolean isSuccessResponse(HttpResponse<String> httpResponse) {
+        return httpResponse.statusCode() >= 100 && httpResponse.statusCode() <= 399;
     }
 
     @SuppressWarnings("unchecked")

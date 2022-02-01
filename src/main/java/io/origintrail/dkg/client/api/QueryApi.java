@@ -1,7 +1,6 @@
 package io.origintrail.dkg.client.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.origintrail.dkg.client.http.HttpMediaType;
 import io.origintrail.dkg.client.http.MultiPartBody;
 import io.origintrail.dkg.client.model.HandlerId;
 import io.origintrail.dkg.client.model.HttpUrlOptions;
@@ -42,14 +41,6 @@ class QueryApi extends ApiClient {
         HttpRequest request = createMultiPartFormRequest(uri, bodyPublisher);
 
         return sendAsyncRequest(request, HandlerId.class);
-    }
-
-    private HttpRequest createMultiPartFormRequest(URI uri, MultiPartBody.MultiPartBodyBuilder bodyPublisher) {
-        return HttpRequest.newBuilder()
-                .uri(uri)
-                .header("Content-Type", HttpMediaType.MULTIPART_FORM_DATA.value() + "; boundary=" + bodyPublisher.getBoundary())
-                .POST(bodyPublisher.build())
-                .build();
     }
 
     public CompletableFuture<JsonNode> getQueryResult(String handlerId) {

@@ -1,7 +1,7 @@
 package io.origintrail.dkg.client.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.origintrail.dkg.client.exception.HttpRequestException;
+import io.origintrail.dkg.client.exception.ClientRequestException;
 import io.origintrail.dkg.client.model.AssertionSearchOptions;
 import io.origintrail.dkg.client.model.EntitySearchOptions;
 import io.origintrail.dkg.client.model.HandlerId;
@@ -77,7 +77,7 @@ public class DkgClient {
 
             return publishApi.publish(publishFileName.toString(), publishData, publishOptions);
         } catch (IOException e) {
-           throw new HttpRequestException(String.format("Exception reading publish file: %s", filePath), e.getCause());
+           throw new ClientRequestException(String.format("Exception reading publish file: %s", filePath), e.getCause());
         }
     }
 

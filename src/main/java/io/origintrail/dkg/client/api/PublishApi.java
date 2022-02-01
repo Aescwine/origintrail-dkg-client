@@ -1,7 +1,7 @@
 package io.origintrail.dkg.client.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.origintrail.dkg.client.exception.HttpRequestException;
+import io.origintrail.dkg.client.exception.ClientRequestException;
 import io.origintrail.dkg.client.http.HttpMediaType;
 import io.origintrail.dkg.client.http.MultiPartBody;
 import io.origintrail.dkg.client.model.HandlerId;
@@ -34,7 +34,7 @@ class PublishApi extends ApiClient {
     public CompletableFuture<HandlerId> publish(String fileName, byte[] fileData, PublishOptions publishOptions) {
 
         if (!JsonUtil.isJsonValid(fileData)) {
-            throw new HttpRequestException("Publish data is not valid JSON.");
+            throw new ClientRequestException("Publish data is not valid JSON.");
         }
 
         URI uri = UriUtil.builder().httpUrlOptions(getHttpUrlOptions())
@@ -56,14 +56,6 @@ class PublishApi extends ApiClient {
         HttpRequest request = createMultiPartFormRequest(uri, bodyPublisher);
 
         return sendAsyncRequest(request, HandlerId.class);
-    }
-
-    private HttpRequest createMultiPartFormRequest(URI uri, MultiPartBody.MultiPartBodyBuilder bodyPublisher) {
-        return HttpRequest.newBuilder()
-                .uri(uri)
-                .header("Content-Type", HttpMediaType.MULTIPART_FORM_DATA.value() + "; boundary=" + bodyPublisher.getBoundary())
-                .POST(bodyPublisher.build())
-                .build();
     }
 
     public CompletableFuture<JsonNode> getPublishResult(String handlerId) {

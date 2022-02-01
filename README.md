@@ -7,11 +7,13 @@ An asynchronous Java library, providing an interface into the OriginTrail Decent
 - verifying the integrity of queried data
 - exporting of datasets in different formats 
 
+**Compatible with DKG version**: *6.0.0-beta.1.20* 
+
 # Disclaimer
 
 **This library is still in beta and under development.** Use at own risk of disappointment that it doesn't work as expected!
 
-## Prerequisities and Dependencies
+## Prerequisites and Dependencies
 
 - Java 11+
 - [Jackson Faster XML](https://github.com/FasterXML/jackson)
@@ -109,7 +111,7 @@ publishResult.thenApply(r -> r.path("data").path("id").asText());
 When expected process flow is interrupted, **DKGClient** takes the approach of throwing unchecked exceptions of abstract type `DkgClientException`, rather than propagating exceptions up the stack.
 
 Concrete exception types:
-- `HttpRequestException` - exception occurred building HTTP request.
+- `ClientRequestException` - exception occurred preparing request.
 - `HttpResponseException` - exception occurred processing HTTP response.
 - `UriCreationException` - exception creating request Uri.
 
