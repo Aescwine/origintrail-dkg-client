@@ -118,7 +118,7 @@ Concrete exception types:
 The DKGClient library uses [SLF4J](https://www.slf4j.org/) to allow implementing applications to use their own logging framework.
 
 Configure the **DKGClient** logging level within your logging framework configuration, for example:
-test
+
 ```
 <logger name="io.origintrail.dkg.client" level="WARN" />
 ```
