@@ -6,6 +6,7 @@ import io.origintrail.dkg.client.model.EntitySearchOptions;
 import io.origintrail.dkg.client.model.HandlerId;
 import io.origintrail.dkg.client.model.NodeInfo;
 import io.origintrail.dkg.client.model.PublishOptions;
+import io.origintrail.dkg.client.model.SparqlQueryType;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.arq.querybuilder.ConstructBuilder;
 import org.junit.jupiter.api.Test;
@@ -15,17 +16,23 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Test class for testing the client integration a running DKG node
+ */
 public class DkgApiIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DkgApiIntegrationTest.class);
 
     private static final String HOST = "localhost"; // your local node instance
     private static final int PORT = 8900;
+    private static final String HANDLER_ID_REGEX = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
 
     private final DkgClient dkgClient = new DkgClient(HOST, PORT);
 
@@ -42,6 +49,47 @@ public class DkgApiIntegrationTest {
     }
 
     @Test
+    void resolve_multipleAssertions_resultContainsDataForTwoAssertions() throws IOException, InterruptedException {
+        String randomKeywordForTest = "keyword" + UUID.randomUUID().toString().substring(0, 5);
+        String randomAssetForTest = "asset" + UUID.randomUUID().toString().substring(0, 5);
+
+        // publish assertions
+        HandlerId publishHandlerId1 = publishAssertion(randomKeywordForTest, randomAssetForTest);
+        assertThat(publishHandlerId1.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
+
+        // sleep for 5 seconds to allow publish to complete
+        Thread.sleep(5000);
+
+        HandlerId publishHandlerId2 = publishAssertion(randomKeywordForTest, randomAssetForTest);
+        assertThat(publishHandlerId2.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
+
+        // sleep for 5 seconds to allow publish to complete
+        Thread.sleep(5000);
+
+        // get publish results
+        JsonNode publishedAssertionJson1 = getPublishResult(publishHandlerId1);
+        assertThat(publishedAssertionJson1.get("status").toString()).containsAnyOf("COMPLETED", "PENDING");
+        String assertionId1 = publishedAssertionJson1.path("data").path("id").asText();
+
+        JsonNode publishedAssertionJson2 = getPublishResult(publishHandlerId2);
+        assertThat(publishedAssertionJson2.get("status").toString()).containsAnyOf("COMPLETED", "PENDING");
+        String assertionId2 = publishedAssertionJson2.path("data").path("id").asText();
+
+
+        // resolve assertions
+        HandlerId resolveHandlerId = resolveAssertion(Arrays.asList(assertionId1, assertionId2));
+        assertThat(resolveHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
+
+        // sleep for 3 seconds to allow resolve to complete
+        Thread.sleep(3000);
+
+        // get resolve result
+        JsonNode resolvedAssertionJson = getResolveResult(resolveHandlerId);
+        assertThat(resolvedAssertionJson.get("status").toString()).containsAnyOf("COMPLETED", "PENDING");
+        assertThat(resolvedAssertionJson.get("data").size()).isEqualTo(2);
+    }
+
+    @Test
     void end_to_end_integration_test() throws IOException, InterruptedException {
         String randomKeywordForTest = "keyword" + UUID.randomUUID().toString().substring(0, 5);
         String randomAssetForTest = "asset" + UUID.randomUUID().toString().substring(0, 5);
@@ -49,7 +97,7 @@ public class DkgApiIntegrationTest {
         // publish assertion
         HandlerId publishHandlerId = publishAssertion(randomKeywordForTest, randomAssetForTest);
 
-        assertThat(publishHandlerId.getHandlerId()).matches(v -> v.matches("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+        assertThat(publishHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
         LOGGER.info("Assertion published");
 
         // sleep for 5 seconds to allow publish to complete
@@ -64,7 +112,7 @@ public class DkgApiIntegrationTest {
 
         // resolve assertion
         HandlerId resolveHandlerId = resolveAssertion(assertionId);
-        assertThat(resolveHandlerId.getHandlerId()).matches(v -> v.matches("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+        assertThat(resolveHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
         LOGGER.info("Assertion resolved");
 
         // sleep for 3 seconds to allow resolve to complete
@@ -78,7 +126,7 @@ public class DkgApiIntegrationTest {
 
         // entities search
         HandlerId entitiesSearchHandlerId = entitiesSearch(randomKeywordForTest);
-        assertThat(entitiesSearchHandlerId.getHandlerId()).matches(v -> v.matches("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+        assertThat(entitiesSearchHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
         LOGGER.info("Entity search sent");
 
         // sleep for 3 seconds to allow entities search to complete
@@ -94,7 +142,7 @@ public class DkgApiIntegrationTest {
 
         // assertion search
         HandlerId assertionSearchHandlerId = assertionsSearch(randomAssetForTest);
-        assertThat(assertionSearchHandlerId.getHandlerId()).matches(v -> v.matches("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+        assertThat(assertionSearchHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
         LOGGER.info("Assertion search sent");
 
         // sleep for 3 seconds to allow assertion search to complete
@@ -110,7 +158,7 @@ public class DkgApiIntegrationTest {
 
         // SPARQL query
         HandlerId sparqlQueryHandlerId = sparqlQuery(randomKeywordForTest);
-        assertThat(assertionSearchHandlerId.getHandlerId()).matches(v -> v.matches("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+        assertThat(assertionSearchHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
         LOGGER.info("SPARQL query sent");
 
         // sleep for 1 second to allow query to complete
@@ -126,7 +174,7 @@ public class DkgApiIntegrationTest {
 
         // get proofs
         HandlerId proofsQueryHandlerId = proofsQuery(randomKeywordForTest, assertionId);
-        assertThat(assertionSearchHandlerId.getHandlerId()).matches(v -> v.matches("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+        assertThat(assertionSearchHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
         LOGGER.info("Proofs query sent");
 
         // sleep for 5 second to allow proofs query to complete
@@ -142,7 +190,7 @@ public class DkgApiIntegrationTest {
         ClassLoader classLoader = DkgApiIntegrationTest.class.getClassLoader();
 
         URL assertionFileUrl = classLoader.getResource(assertionFileName);
-        if (assertionFileUrl == null ){
+        if (assertionFileUrl == null) {
             throw new IllegalArgumentException("File not found: " + assertionFileName);
         }
 
@@ -167,6 +215,11 @@ public class DkgApiIntegrationTest {
         return resolveHandlerIdCompletableFuture.join();
     }
 
+    private HandlerId resolveAssertion(List<String> assertionIds) {
+        CompletableFuture<HandlerId> resolveHandlerIdCompletableFuture = dkgClient.resolve(assertionIds);
+        return resolveHandlerIdCompletableFuture.join();
+    }
+
     private JsonNode getResolveResult(HandlerId resolveHandlerId) {
         CompletableFuture<JsonNode> resolveResult = dkgClient.getResolveResult(resolveHandlerId.getHandlerId());
         return resolveResult.join();
@@ -180,18 +233,18 @@ public class DkgApiIntegrationTest {
 
     private JsonNode getEntitiesSearchResult(HandlerId entitiesSearchHandlerId) {
         CompletableFuture<JsonNode> entitiesSearchResult = dkgClient.getEntitiesSearchResult(entitiesSearchHandlerId.getHandlerId());
-        return  entitiesSearchResult.join();
+        return entitiesSearchResult.join();
     }
 
     private HandlerId assertionsSearch(String keyword) {
-        AssertionSearchOptions assertionSearchOptions = AssertionSearchOptions.builder().query(keyword).build();
+        AssertionSearchOptions assertionSearchOptions = AssertionSearchOptions.builder(keyword).build();
         CompletableFuture<HandlerId> result = dkgClient.assertionsSearch(assertionSearchOptions);
         return result.join();
     }
 
     private JsonNode getAssertionsSearchResult(HandlerId assertionSearchHandlerId) {
         CompletableFuture<JsonNode> assertionSearchResult = dkgClient.getAssertionsSearchResult(assertionSearchHandlerId.getHandlerId());
-        return  assertionSearchResult.join();
+        return assertionSearchResult.join();
     }
 
     private HandlerId sparqlQuery(String keyword) {
@@ -201,7 +254,7 @@ public class DkgApiIntegrationTest {
                 .addGraph("?g", "?s", "schema:hasKeyword", "?o")
                 .addWhere("?s", "schema:hasKeyword", keyword);
 
-        CompletableFuture<HandlerId> queryHandlerId = dkgClient.query("construct", constructBuilder);
+        CompletableFuture<HandlerId> queryHandlerId = dkgClient.query(SparqlQueryType.CONSTRUCT, constructBuilder);
         return queryHandlerId.join();
     }
 
@@ -211,7 +264,7 @@ public class DkgApiIntegrationTest {
     }
 
     private HandlerId proofsQuery(String randomKeywordForTest, String assertionId) {
-        String nquadsData = "[\"<did:dkg:" + assertionId + "> <http://schema.org/hasKeyword> \\"+ randomKeywordForTest + "\" .\"]";
+        String nquadsData = "[\"<did:dkg:" + assertionId + "> <http://schema.org/hasKeyword> \\" + randomKeywordForTest + "\" .\"]";
 
         CompletableFuture<HandlerId> result = dkgClient.proofs(nquadsData, assertionId);
         return result.join();

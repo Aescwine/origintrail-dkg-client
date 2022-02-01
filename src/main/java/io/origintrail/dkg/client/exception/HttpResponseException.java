@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.ToString;
 import org.apache.hc.core5.util.TextUtils;
 
+/**
+ * Represents an HTTP error response status exception. That is, any response with a status code not between 200-299
+ */
 @Getter
 @ToString
 public class HttpResponseException extends DkgClientException {

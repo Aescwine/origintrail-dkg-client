@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 
 public class UriUtil {
 
-    private UriUtil() {}
+    private UriUtil() {
+    }
 
     public static UriUtil.UriBuilder builder() {
         return new UriUtil.UriBuilder();
@@ -54,11 +55,33 @@ public class UriUtil {
             return this;
         }
 
+        /**
+         *
+         * @param parameters
+         * @return
+         */
         public UriBuilder queryParameters(Map<String, String> parameters) {
             if (parameters != null) {
                 parameters.forEach((param, value) -> {
                     if (StringUtils.isNotBlank(value)) {
                         uriBuilder.addParameter(param, value);
+                    }
+                });
+            }
+            return this;
+        }
+
+        /**
+         *
+         * @param key Query parameter key
+         * @param values A {@code List<String>} of values to be added to query parameters for the given {@code key}
+         * @return This {@code UriBuilder} to be used in further construction of {@link URI}
+         */
+        public UriBuilder queryParameters(String key, List<String> values) {
+            if (StringUtils.isNotBlank(key) && !values.isEmpty()) {
+                values.forEach(value -> {
+                    if (StringUtils.isNotBlank(value)) {
+                        uriBuilder.addParameter(key, value);
                     }
                 });
             }

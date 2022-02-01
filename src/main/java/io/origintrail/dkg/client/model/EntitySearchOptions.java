@@ -7,7 +7,11 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class for encapsulating DKG GET /entities:search request parameters.
+ */
 @Builder
+@Getter
 public class EntitySearchOptions {
 
     private final String query;

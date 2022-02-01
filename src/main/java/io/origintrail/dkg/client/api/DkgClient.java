@@ -2,12 +2,15 @@ package io.origintrail.dkg.client.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.origintrail.dkg.client.exception.ClientRequestException;
+import io.origintrail.dkg.client.exception.HttpResponseException;
+import io.origintrail.dkg.client.exception.UnexpectedException;
 import io.origintrail.dkg.client.model.AssertionSearchOptions;
 import io.origintrail.dkg.client.model.EntitySearchOptions;
 import io.origintrail.dkg.client.model.HandlerId;
 import io.origintrail.dkg.client.model.HttpUrlOptions;
 import io.origintrail.dkg.client.model.NodeInfo;
 import io.origintrail.dkg.client.model.PublishOptions;
+import io.origintrail.dkg.client.model.SparqlQueryType;
 import org.apache.jena.arq.querybuilder.AbstractQueryBuilder;
 import org.apache.jena.query.Query;
 
@@ -17,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -25,17 +29,20 @@ import java.util.concurrent.CompletableFuture;
  */
 public class DkgClient {
 
-    private final InfoApi infoApi;
-    private final PublishApi publishApi;
-    private final ResolveApi resolveApi;
-    private final SearchApi searchApi;
-    private final QueryApi queryApi;
+    private final InfoApiService infoApiService;
+    private final PublishApiService publishApiService;
+    private final ResolveApiService resolveApiService;
+    private final SearchApiService searchApiService;
+    private final QueryApiService queryApiService;
 
     private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = 8900;
 
     private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(10);
 
+    /**
+     * Creates a DkgClient with default URL options: schema=http, HOST=localhost, POST=8900.
+     */
     public DkgClient() {
         this(DEFAULT_HOST, DEFAULT_PORT, false);
     }
@@ -53,81 +60,230 @@ public class DkgClient {
 
         HttpUrlOptions httpUrlOptions = new HttpUrlOptions(host, port, sshEnabled ? "https" : "http");
 
-        infoApi = new InfoApi(httpClient, httpUrlOptions);
-        publishApi = new PublishApi(httpClient, httpUrlOptions);
-        resolveApi = new ResolveApi(httpClient, httpUrlOptions);
-        searchApi = new SearchApi(httpClient, httpUrlOptions);
-        queryApi = new QueryApi(httpClient, httpUrlOptions);
+        infoApiService = new InfoApiService(httpClient, httpUrlOptions);
+        publishApiService = new PublishApiService(httpClient, httpUrlOptions);
+        resolveApiService = new ResolveApiService(httpClient, httpUrlOptions);
+        searchApiService = new SearchApiService(httpClient, httpUrlOptions);
+        queryApiService = new QueryApiService(httpClient, httpUrlOptions);
     }
 
-    public CompletableFuture<NodeInfo> getInfo() {
-        return infoApi.getInfo();
+    /**
+     * Get DKG node information.
+     *
+     * @return {@code NodeInfo} representing the response body containing node information.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<NodeInfo> getInfo() throws HttpResponseException, UnexpectedException {
+        return infoApiService.getInfo();
     }
 
-    public CompletableFuture<HandlerId> publish(String fileName, byte[] fileData, PublishOptions publishOptions) {
-        return publishApi.publish(fileName, fileData, publishOptions);
+    /**
+     * Publish an Assertion on the DKG.
+     *
+     * @param fileName       The file name for the data being published. Must have file extension {@code .json}.
+     * @param fileData       {@code byte[]} of the file data being published.
+     * @param publishOptions {@link PublishOptions} containing additional request properties.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the published DKG Assertion.
+     * @throws ClientRequestException if {@code fileName} does not have file extension '.json',
+     *                                or {@code fileData} is not valid json, or {@code publishOptions} null.
+     * @throws HttpResponseException  if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException    if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<HandlerId> publish(String fileName, byte[] fileData, PublishOptions publishOptions)
+            throws ClientRequestException, HttpResponseException, UnexpectedException {
+        return publishApiService.publish(fileName, fileData, publishOptions);
     }
 
-    public CompletableFuture<HandlerId> publish(String filePath, PublishOptions publishOptions) {
+    /**
+     * Publish an Assertion on the DKG.
+     *
+     * @param filePath       A {@code String} containing the path to the assertion data to publish.
+     *                       Must have file extension {@code .json}.
+     * @param publishOptions {@link PublishOptions} containing additional request properties.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the published DKG Assertion.
+     * @throws ClientRequestException if {@code fileName} does not have file extension '.json',
+     *                                or {@code fileData} is not valid json, or {@code publishOptions} null.
+     * @throws HttpResponseException  if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException    if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<HandlerId> publish(String filePath, PublishOptions publishOptions)
+            throws ClientRequestException, HttpResponseException, UnexpectedException {
         try {
             Path publishFilePath = Paths.get(filePath);
             Path publishFileName = publishFilePath.getFileName();
 
             byte[] publishData = Files.readAllBytes(publishFilePath);
 
-            return publishApi.publish(publishFileName.toString(), publishData, publishOptions);
+            return publishApiService.publish(publishFileName.toString(), publishData, publishOptions);
         } catch (IOException e) {
-           throw new ClientRequestException(String.format("Exception reading publish file: %s", filePath), e.getCause());
+            throw new ClientRequestException(String.format("Exception reading publish file: %s", filePath), e.getCause());
         }
     }
 
-    public CompletableFuture<JsonNode> getPublishResult(String handlerId) {
-        return publishApi.getPublishResult(handlerId);
+    /**
+     * Get the result of a previous publish request.
+     *
+     * @param handlerId The {@code handler_id} returned in the publish response you want to retrieve.
+     * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<JsonNode> getPublishResult(String handlerId)
+            throws HttpResponseException, UnexpectedException {
+        return publishApiService.getPublishResult(handlerId);
     }
 
-    public CompletableFuture<HandlerId> resolve(String assertionIds) {
-        return resolveApi.resolve(assertionIds);
+    /**
+     * Resolve an assertion on the DKG
+     *
+     * @param assertionId {@code String} of assertion to resolve.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the resolved DKG assertion.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<HandlerId> resolve(String assertionId) throws HttpResponseException, UnexpectedException {
+        return resolveApiService.resolve(assertionId);
     }
 
-    public CompletableFuture<JsonNode> getResolveResult(String handlerId) {
-        return resolveApi.getResolveResult(handlerId);
+    /**
+     * Resolve assertions on the DKG
+     *
+     * @param assertionIds {@code List<String>} of assertion ids to resolve.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the resolved DKG assertions.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<HandlerId> resolve(List<String> assertionIds)
+            throws HttpResponseException, UnexpectedException {
+        return resolveApiService.resolve(assertionIds);
     }
 
-    public CompletableFuture<HandlerId> entitiesSearch(EntitySearchOptions entitySearchOptions) {
-        return searchApi.entitiesSearch(entitySearchOptions);
+    /**
+     * Get the result of a previous resolve request.
+     *
+     * @param handlerId The {@code handler_id} returned in the resolve response you want to retrieve.
+     * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<JsonNode> getResolveResult(String handlerId)
+            throws HttpResponseException, UnexpectedException {
+        return resolveApiService.getResolveResult(handlerId);
     }
 
-    public CompletableFuture<JsonNode> getEntitiesSearchResult(String handlerId) {
-        return searchApi.getEntitiesSearchResult(handlerId);
+    /**
+     * Search for entities on the DKG.
+     *
+     * @param entitySearchOptions {@link EntitySearchOptions} containing query parameters required for search.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the DKG entities search.
+     * @throws ClientRequestException if {@code EntitySearchOptions} is not valid. Either the {@code query} or {@code ids} parameter is required.
+     * @throws HttpResponseException  if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException    if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<HandlerId> entitiesSearch(EntitySearchOptions entitySearchOptions)
+            throws HttpResponseException, UnexpectedException {
+        return searchApiService.entitiesSearch(entitySearchOptions);
     }
 
-    public CompletableFuture<HandlerId> assertionsSearch(AssertionSearchOptions assertionSearchOptions) {
-        return searchApi.assertionsSearch(assertionSearchOptions);
+    /**
+     * Get the result of a previous entities search request.
+     *
+     * @param handlerId The {@code handler_id} returned in the entities search response you want to retrieve.
+     * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<JsonNode> getEntitiesSearchResult(String handlerId)
+            throws HttpResponseException, UnexpectedException {
+        return searchApiService.getEntitiesSearchResult(handlerId);
     }
 
-    public CompletableFuture<JsonNode> getAssertionsSearchResult(String handlerId) {
-        return searchApi.getAssertionsSearchResult(handlerId);
+    /**
+     * Search for assertions on the DKG.
+     *
+     * @param assertionSearchOptions {@link AssertionSearchOptions} containing query parameters required for search.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the DKG assertions search.
+     * @throws ClientRequestException if {@code AssertionSearchOptions} is not valid. The {@code query} parameter is required.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<HandlerId> assertionsSearch(AssertionSearchOptions assertionSearchOptions)
+            throws HttpResponseException, UnexpectedException {
+        return searchApiService.assertionsSearch(assertionSearchOptions);
     }
 
-    public CompletableFuture<HandlerId> query(String type, String requestBody) {
-        return queryApi.query(type, requestBody);
+    /**
+     * Get the result of a previous assertions search request.
+     *
+     * @param handlerId The {@code handler_id} returned in the assertions search response you want to retrieve.
+     * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<JsonNode> getAssertionsSearchResult(String handlerId)
+            throws HttpResponseException, UnexpectedException {
+        return searchApiService.getAssertionsSearchResult(handlerId);
     }
 
-    public CompletableFuture<HandlerId> query(String type, AbstractQueryBuilder<?> queryBuilder) {
-        Query query = queryBuilder.build();
-
-        return queryApi.query(type, query.toString());
+    /**
+     * Run a SPARQL query on the local DKG node.
+     *
+     * @param type The {@code SparqlQueryType} of the SPARQL query.
+     * @param sparqlQuery The SPARQL query as a {@code String}.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the DKG SPARQL query.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<HandlerId> query(SparqlQueryType type, String sparqlQuery)
+            throws HttpResponseException, UnexpectedException {
+        return queryApiService.query(type, sparqlQuery);
     }
 
-    public CompletableFuture<JsonNode> getQueryResult(String handlerId) {
-        return queryApi.getQueryResult(handlerId);
+    /**
+     * @param type The {@code SparqlQueryType} of the SPARQL query.
+     * @param sparqlQueryBuilder The Apache Jena {@code AbstractQueryBuilder} used to build a SPARQL query.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the DKG SPARQL query.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<HandlerId> query(SparqlQueryType type, AbstractQueryBuilder<?> sparqlQueryBuilder)
+            throws HttpResponseException, UnexpectedException {
+        Query query = sparqlQueryBuilder.build();
+        return queryApiService.query(type, query.toString());
     }
 
-    public CompletableFuture<HandlerId> proofs(String nquads, String assertion) {
-        return queryApi.proofs(nquads, assertion);
+    /**
+     * @param handlerId
+     * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<JsonNode> getQueryResult(String handlerId)
+            throws HttpResponseException, UnexpectedException {
+        return queryApiService.getQueryResult(handlerId);
     }
 
-    public CompletableFuture<JsonNode> getProofsResult(String handlerId) {
-        return queryApi.getProofsResult(handlerId);
+    /**
+     * @param nquads
+     * @param assertion
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the DKG proofs query.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<HandlerId> proofs(String nquads, String assertion)
+            throws HttpResponseException, UnexpectedException {
+        return queryApiService.proofs(nquads, assertion);
+    }
+
+    /**
+     * @param handlerId
+     * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
+     * @throws HttpResponseException if the call to the DKG API returns an error status code.
+     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<JsonNode> getProofsResult(String handlerId)
+            throws HttpResponseException, UnexpectedException {
+        return queryApiService.getProofsResult(handlerId);
     }
 }
