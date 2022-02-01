@@ -37,7 +37,7 @@ Execute all unit tests with the maven command: `mvn test`
 
 `DkgApiIntegrationTest` contains the DKG API integration tests, including an end to end flow, covering all API endpoints. <p/>To run integration tests locally, run `mvn integration-test`
 
-Note: update the host and port to your local node is required
+Note: update the host and port to your local node if required
 
 ## Usage
 
@@ -45,7 +45,7 @@ The **DKGClient** library is asynchronous, using `java.net.http.HttpClient` for 
 
 API responses are wrapped in a **CompletableFuture** containing the result of the API request, to facilitate non-blocking logic within your code.
 
-If using Spring Boot/Reactor Core, create a **Mono** from **CompletableFuture**
+If using Spring Boot/Reactor Core, create a **Mono** from **CompletableFuture**:
 ```java
 Mono monoResult = reactor.core.publisher.Mono.fromFuture(result);
 ```
@@ -84,7 +84,7 @@ Example response object:
 ```
 // if you have the assertion JSON byte array:
 CompletableFuture<HandlerId> publishHandlerId = dkgClient.publish(fileName, fileData, publishOptions);
-// or if you want to publish from a file:
+// or if you want to publish from a file path:
 CompletableFuture<HandlerId> publishHandlerId = dkgClient.publish(filePath, publishOptions);
 
 ```
@@ -106,8 +106,9 @@ publishResult.thenApply(r -> r.path("data").path("id").asText());
 
 ## Exception Handling
 
-When expected process flow is interrupted, DKGClient takes the approach of throwing unchecked exceptions of abstract type `DkgClientException`, rather than propagating exceptions up the stack.
+When expected process flow is interrupted, **DKGClient** takes the approach of throwing unchecked exceptions of abstract type `DkgClientException`, rather than propagating exceptions up the stack.
 
+Concrete exception types:
 - `HttpRequestException` - exception occurred building HTTP request.
 - `HttpResponseException` - exception occurred processing HTTP response.
 - `UriCreationException` - exception creating request Uri.
@@ -116,7 +117,7 @@ When expected process flow is interrupted, DKGClient takes the approach of throw
 
 The DKGClient library uses [SLF4J](https://www.slf4j.org/) to allow implementing applications to use their own logging framework.
 
-Configure the DKGClient logging level within your logging framework configuration, for example:
+Configure the **DKGClient** logging level within your logging framework configuration, for example:
 
 ```
 <logger name="io.origintrail.dkg.client" level="WARN" />
