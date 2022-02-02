@@ -13,7 +13,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 class ResolveApiService extends ApiRequestService {
@@ -25,15 +24,6 @@ class ResolveApiService extends ApiRequestService {
 
     public ResolveApiService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
         super(httpClient, httpUrlOptions, LOGGER);
-    }
-
-    public CompletableFuture<HandlerId> resolve(String assertionId) throws HttpResponseException, UnexpectedException {
-        URI uri = UriUtil.builder().httpUrlOptions(getHttpUrlOptions())
-                .path(RESOLVE_PATH)
-                .queryParameters(Map.of("ids", assertionId))
-                .build();
-
-        return resolve(uri);
     }
 
     public CompletableFuture<HandlerId> resolve(List<String> assertionIds) throws HttpResponseException, UnexpectedException {

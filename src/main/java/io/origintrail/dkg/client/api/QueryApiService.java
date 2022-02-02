@@ -1,11 +1,14 @@
 package io.origintrail.dkg.client.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.origintrail.dkg.client.exception.ClientRequestException;
 import io.origintrail.dkg.client.exception.HttpResponseException;
 import io.origintrail.dkg.client.exception.UnexpectedException;
 import io.origintrail.dkg.client.http.MultiPartBody;
 import io.origintrail.dkg.client.model.HandlerId;
 import io.origintrail.dkg.client.model.HttpUrlOptions;
+import io.origintrail.dkg.client.model.NQuad;
 import io.origintrail.dkg.client.model.SparqlQueryType;
 import io.origintrail.dkg.client.util.UriUtil;
 import org.slf4j.Logger;
@@ -56,19 +59,30 @@ class QueryApiService extends ApiRequestService {
         return sendAsyncRequest(request, JsonNode.class);
     }
 
-    public CompletableFuture<HandlerId> proofs(String requestBody, String assertions) throws HttpResponseException, UnexpectedException {
+    public CompletableFuture<HandlerId> proofs(List<NQuad> nQuads, List<String> assertionIds)
+            throws ClientRequestException, HttpResponseException, UnexpectedException {
+
         URI uri = UriUtil.builder().httpUrlOptions(getHttpUrlOptions())
                 .path(PROOFS_PATH)
-                .queryParameters(Collections.singletonMap("assertions", assertions))
+                .queryParameters("assertions", assertionIds)
                 .build();
 
+        String nQuadsJson = getNQuadsJson(nQuads);
         MultiPartBody.MultiPartBodyBuilder bodyPublisher = MultiPartBody
                 .builder()
-                .addPart("nquads", requestBody);
+                .addPart("nquads", nQuadsJson);
 
         HttpRequest request = createMultiPartFormRequest(uri, bodyPublisher);
 
         return sendAsyncRequest(request, HandlerId.class);
+    }
+
+    private String getNQuadsJson(List<NQuad> nQuads) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(nQuads);
+        } catch (JsonProcessingException e) {
+            throw new ClientRequestException("Exception serializing N-Quads collection to JSON", e.getCause());
+        }
     }
 
     public CompletableFuture<JsonNode> getProofsResult(String handlerId) throws HttpResponseException, UnexpectedException {

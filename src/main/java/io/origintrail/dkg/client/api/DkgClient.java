@@ -8,6 +8,7 @@ import io.origintrail.dkg.client.model.AssertionSearchOptions;
 import io.origintrail.dkg.client.model.EntitySearchOptions;
 import io.origintrail.dkg.client.model.HandlerId;
 import io.origintrail.dkg.client.model.HttpUrlOptions;
+import io.origintrail.dkg.client.model.NQuad;
 import io.origintrail.dkg.client.model.NodeInfo;
 import io.origintrail.dkg.client.model.PublishOptions;
 import io.origintrail.dkg.client.model.SparqlQueryType;
@@ -74,7 +75,7 @@ public class DkgClient {
      * @throws HttpResponseException if the call to the DKG API returns an error status code.
      * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
      */
-    public CompletableFuture<NodeInfo> getInfo() throws HttpResponseException, UnexpectedException {
+    public CompletableFuture<NodeInfo> getNodeInfo() throws HttpResponseException, UnexpectedException {
         return infoApiService.getInfo();
     }
 
@@ -132,18 +133,6 @@ public class DkgClient {
     public CompletableFuture<JsonNode> getPublishResult(String handlerId)
             throws HttpResponseException, UnexpectedException {
         return publishApiService.getPublishResult(handlerId);
-    }
-
-    /**
-     * Resolve an assertion on the DKG
-     *
-     * @param assertionId {@code String} of assertion to resolve.
-     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the resolved DKG assertion.
-     * @throws HttpResponseException if the call to the DKG API returns an error status code.
-     * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
-     */
-    public CompletableFuture<HandlerId> resolve(String assertionId) throws HttpResponseException, UnexpectedException {
-        return resolveApiService.resolve(assertionId);
     }
 
     /**
@@ -241,6 +230,8 @@ public class DkgClient {
     }
 
     /**
+     * Run a SPARQL query on the local DKG node.
+     *
      * @param type The {@code SparqlQueryType} of the SPARQL query.
      * @param sparqlQueryBuilder The Apache Jena {@code AbstractQueryBuilder} used to build a SPARQL query.
      * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the DKG SPARQL query.
@@ -254,7 +245,9 @@ public class DkgClient {
     }
 
     /**
-     * @param handlerId
+     * Get the result of a previous SPARQL query.
+     *
+     * @param handlerId The {@code handler_id} returned in the SPARQL query response you want to retrieve.
      * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
      * @throws HttpResponseException if the call to the DKG API returns an error status code.
      * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
@@ -265,19 +258,24 @@ public class DkgClient {
     }
 
     /**
-     * @param nquads
-     * @param assertion
+     * Query proofs for RDF triples in n-quads format.
+     *
+     * @param nQuads {@code List<NQuad>} collection of RDF triples.
+     * @param assertionIds the assertion ids to query.
      * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the DKG proofs query.
+     * @throws ClientRequestException if {@code nQuads} cannot be serialized as a JSON array.
      * @throws HttpResponseException if the call to the DKG API returns an error status code.
      * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.
      */
-    public CompletableFuture<HandlerId> proofs(String nquads, String assertion)
+    public CompletableFuture<HandlerId> proofs(List<NQuad> nQuads, List<String> assertionIds)
             throws HttpResponseException, UnexpectedException {
-        return queryApiService.proofs(nquads, assertion);
+        return queryApiService.proofs(nQuads, assertionIds);
     }
 
     /**
-     * @param handlerId
+     * Get the result of a previous proofs query.
+     *
+     * @param handlerId The {@code handler_id} returned in the proofs query response you want to retrieve.
      * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
      * @throws HttpResponseException if the call to the DKG API returns an error status code.
      * @throws UnexpectedException   if an unexpected exception occurs during processing of the request/response.

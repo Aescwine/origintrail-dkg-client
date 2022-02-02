@@ -43,7 +43,7 @@ class DkgClientTest {
                 "}").setResponseCode(200));
 
         // when
-        CompletableFuture<NodeInfo> nodeInfoCompletableFuture = dkgClient.getInfo();
+        CompletableFuture<NodeInfo> nodeInfoCompletableFuture = dkgClient.getNodeInfo();
         NodeInfo nodeInfo = nodeInfoCompletableFuture.join();
 
         // then

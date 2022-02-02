@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Builder class for generating HTTP request URIs.
+ */
 public class UriUtil {
 
     private UriUtil() {
@@ -41,11 +44,23 @@ public class UriUtil {
             return this;
         }
 
+        /**
+         * Set the path of the URI.
+         *
+         * @param path the URI path
+         * @return This {@code UriBuilder} to be used in further construction of the {@link URI}.
+         */
         public UriBuilder path(String path) {
             uriBuilder.setPath(path);
             return this;
         }
 
+        /**
+         * Add path segments to the URI.
+         *
+         * @param pathSegments {@code List<String>} of path segments to include in URI.
+         * @return This {@code UriBuilder} to be used in further construction of the {@link URI}.
+         */
         public UriBuilder pathSegments(List<String> pathSegments) {
             List<String> splitSegments = pathSegments.stream()
                     .map(s -> s.split("/"))
@@ -56,9 +71,10 @@ public class UriUtil {
         }
 
         /**
+         * Add query parameters to the URI.
          *
-         * @param parameters
-         * @return
+         * @param parameters a {@code Map<String, String>} of key/value parameters, to include in the URI.
+         * @return This {@code UriBuilder} to be used in further construction of the {@link URI}.
          */
         public UriBuilder queryParameters(Map<String, String> parameters) {
             if (parameters != null) {
@@ -72,10 +88,11 @@ public class UriUtil {
         }
 
         /**
+         *  Add query parameter values for a single key to the URI. Represents an array of values for the given parameter key.
          *
-         * @param key Query parameter key
-         * @param values A {@code List<String>} of values to be added to query parameters for the given {@code key}
-         * @return This {@code UriBuilder} to be used in further construction of {@link URI}
+         * @param key Query parameter key.
+         * @param values A {@code List<String>} of values to be added to query parameters for the given {@code key}.
+         * @return This {@code UriBuilder} to be used in further construction of the {@link URI}.
          */
         public UriBuilder queryParameters(String key, List<String> values) {
             if (StringUtils.isNotBlank(key) && !values.isEmpty()) {
