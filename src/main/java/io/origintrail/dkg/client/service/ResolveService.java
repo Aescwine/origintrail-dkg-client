@@ -1,4 +1,4 @@
-package io.origintrail.dkg.client.api;
+package io.origintrail.dkg.client.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.origintrail.dkg.client.exception.HttpResponseException;
@@ -15,14 +15,14 @@ import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-class ResolveApiService extends ApiRequestService {
+public class ResolveService extends ApiRequestService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResolveApiService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResolveService.class);
 
     private static final String RESOLVE_PATH = "resolve";
     private static final String RESOLVE_RESULT_PATH = "resolve/result";
 
-    public ResolveApiService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
+    public ResolveService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
         super(httpClient, httpUrlOptions, LOGGER);
     }
 
@@ -32,13 +32,9 @@ class ResolveApiService extends ApiRequestService {
                 .queryParameters("ids", assertionIds)
                 .build();
 
-        return resolve(uri);
-    }
-
-    private CompletableFuture<HandlerId> resolve(URI uri) {
         HttpRequest request = createHttpGETRequest(uri);
 
-        return sendAsyncRequest(request, HandlerId.class);
+        return sendAsyncRequest(request).thenApply(body -> transformBody(body, HandlerId.class));
     }
 
     public CompletableFuture<JsonNode> getResolveResult(String handlerId) throws HttpResponseException, UnexpectedException {
@@ -48,6 +44,6 @@ class ResolveApiService extends ApiRequestService {
 
         HttpRequest request = createHttpGETRequest(uri);
 
-        return sendAsyncRequest(request, JsonNode.class);
+        return sendAsyncRequest(request).thenApply(body -> transformBody(body, JsonNode.class));
     }
 }

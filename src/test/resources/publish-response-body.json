@@ -1,0 +1,136 @@
+{
+  "status": "COMPLETED",
+  "data": {
+    "id": "797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99",
+    "rootHash": "25f3884b2a8d0dda4e66099e5e732476e2b5f045dd41c0134b4302e39de1534c",
+    "signature": "0xea45d3fd81b74071042069df84dcfc282bd09f95b0a486c4da256a7b5ba29f01266eaf5a9729b32e3cd8ad62c7baf7216203b6a1a37e825ec82b7fcb8171f6e61b",
+    "metadata": {
+      "type": "Product",
+      "timestamp": "2022-02-01T15:49:45.220Z",
+      "issuer": "0x31c98399d3d162fc9bfbfe25c3fc1e41d19ed711",
+      "visibility": true,
+      "dataHash": "ed13153fa4090eceedf6c1dd1aa030ec45ab75c2f9510c64a2014f1c6424e7dd"
+    },
+    "rdf": [
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasDataHash> \"ed13153fa4090eceedf6c1dd1aa030ec45ab75c2f9510c64a2014f1c6424e7dd\" .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasIssuer> \"0x31c98399d3d162fc9bfbfe25c3fc1e41d19ed711\" .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasSignature> \"0xea45d3fd81b74071042069df84dcfc282bd09f95b0a486c4da256a7b5ba29f01266eaf5a9729b32e3cd8ad62c7baf7216203b6a1a37e825ec82b7fcb8171f6e61b\" .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasTimestamp> \"2022-02-01T15:49:45.220Z\" .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasType> \"Product\" .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasVisibility> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .",
+      "_:c14n0 <http://schema.org/aggregateRating> _:c14n4 .",
+      "_:c14n0 <http://schema.org/brand> _:c14n2 .",
+      "_:c14n0 <http://schema.org/description> \"Sleeker than ACME's Classic Anvil, the Executive Anvil is perfect for the business traveler looking for something to drop from a height.\" .",
+      "_:c14n0 <http://schema.org/image> <http://www.example.com/anvil_executive.jpg> .",
+      "_:c14n0 <http://schema.org/mpn> \"925872\" .",
+      "_:c14n0 <http://schema.org/name> \"Executive Anvil\" .",
+      "_:c14n0 <http://schema.org/offers> _:c14n3 .",
+      "_:c14n0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Product> .",
+      "_:c14n1 <http://schema.org/name> \"Executive Objects\" .",
+      "_:c14n1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Organization> .",
+      "_:c14n2 <http://schema.org/name> \"ACME\" .",
+      "_:c14n2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Thing> .",
+      "_:c14n3 <http://schema.org/availability> \"http://schema.org/InStock\" .",
+      "_:c14n3 <http://schema.org/itemCondition> \"http://schema.org/UsedCondition\" .",
+      "_:c14n3 <http://schema.org/price> \"119.99\" .",
+      "_:c14n3 <http://schema.org/priceCurrency> \"USD\" .",
+      "_:c14n3 <http://schema.org/priceValidUntil> \"2020-11-05\"^^<http://schema.org/Date> .",
+      "_:c14n3 <http://schema.org/seller> _:c14n1 .",
+      "_:c14n3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Offer> .",
+      "_:c14n4 <http://schema.org/ratingValue> \"4.4\" .",
+      "_:c14n4 <http://schema.org/reviewCount> \"89\" .",
+      "_:c14n4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/AggregateRating> .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasAsset> \"0ba6ee0852f653c450dccc94feb37a506d5f0ef8a7f540165793c31c2ec17d99\" .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasKeyword> \"Product\" .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasKeyword> \"randomasset\" .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasKeyword> \"randomkeyword\" .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasRootHash> \"25f3884b2a8d0dda4e66099e5e732476e2b5f045dd41c0134b4302e39de1534c\" .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasBlockchain> \"polygon::testnet\" .",
+      "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasTransactionHash> \"0x5a308f38dab9cc60c85a8d48f9be6f789ad192ae82e22135e97976fedbdc9508\" ."
+    ],
+    "assertion": {
+      "data": {
+        "@context": "https://www.schema.org/",
+        "@graph": [
+          {
+            "type": "Product",
+            "aggregateRating": {
+              "id": "_:b1",
+              "type": "AggregateRating",
+              "ratingValue": "4.4",
+              "reviewCount": "89"
+            },
+            "brand": {
+              "id": "_:b2",
+              "type": "Thing",
+              "name": "ACME"
+            },
+            "description": "Sleeker than ACME's Classic Anvil, the Executive Anvil is perfect for the business traveler looking for something to drop from a height.",
+            "image": "http://www.example.com/anvil_executive.jpg",
+            "mpn": "925872",
+            "name": "Executive Anvil",
+            "offers": {
+              "id": "_:b3",
+              "type": "Offer",
+              "availability": "http://schema.org/InStock",
+              "itemCondition": "http://schema.org/UsedCondition",
+              "price": "119.99",
+              "priceCurrency": "USD",
+              "priceValidUntil": "2020-11-05",
+              "seller": {
+                "id": "_:b4",
+                "type": "Organization",
+                "name": "Executive Objects"
+              }
+            }
+          },
+          {
+            "id": "_:b1",
+            "type": "AggregateRating",
+            "ratingValue": "4.4",
+            "reviewCount": "89"
+          },
+          {
+            "id": "_:b2",
+            "type": "Thing",
+            "name": "ACME"
+          },
+          {
+            "id": "_:b3",
+            "type": "Offer",
+            "availability": "http://schema.org/InStock",
+            "itemCondition": "http://schema.org/UsedCondition",
+            "price": "119.99",
+            "priceCurrency": "USD",
+            "priceValidUntil": "2020-11-05",
+            "seller": {
+              "id": "_:b4",
+              "type": "Organization",
+              "name": "Executive Objects"
+            }
+          },
+          {
+            "id": "_:b4",
+            "type": "Organization",
+            "name": "Executive Objects"
+          }
+        ]
+      },
+      "metadata": {
+        "type": "Product",
+        "timestamp": "2022-02-01T15:49:45.220Z",
+        "issuer": "0x31c98399d3d162fc9bfbfe25c3fc1e41d19ed711",
+        "visibility": true,
+        "dataHash": "ed13153fa4090eceedf6c1dd1aa030ec45ab75c2f9510c64a2014f1c6424e7dd"
+      },
+      "metadataHash": "54d75947937978ce2837af19e24bacfbb947edec942c9c0cb7de11fcb9eb6535",
+      "id": "797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99",
+      "signature": "0xea45d3fd81b74071042069df84dcfc282bd09f95b0a486c4da256a7b5ba29f01266eaf5a9729b32e3cd8ad62c7baf7216203b6a1a37e825ec82b7fcb8171f6e61b",
+      "rootHash": "25f3884b2a8d0dda4e66099e5e732476e2b5f045dd41c0134b4302e39de1534c",
+      "blockchain": {
+        "name": "polygon::testnet",
+        "transactionHash": "0x5a308f38dab9cc60c85a8d48f9be6f789ad192ae82e22135e97976fedbdc9508"
+      }
+    }
+  }
+}

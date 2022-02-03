@@ -1,7 +1,6 @@
 package io.origintrail.dkg.client.model;
 
 import lombok.Getter;
-import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -11,12 +10,10 @@ import java.util.Map;
  * Class for encapsulating DKG GET /assertions:search request parameters.
  */
 @Getter
-@ToString
 public class AssertionSearchOptions {
 
     private final String query;
     private final Boolean load;
-
 
     public AssertionSearchOptions(String query, Boolean load) {
         this.query = query;
@@ -43,20 +40,12 @@ public class AssertionSearchOptions {
         public AssertionSearchOptions build() {
             return new AssertionSearchOptions(query, load);
         }
-
-        @Override
-        public String toString() {
-            return "AssertionSearchOptionsBuilder{" +
-                    "query='" + query + '\'' +
-                    ", load=" + load +
-                    '}';
-        }
     }
 
     public Map<String, String> getQueryParameters() {
         Map<String, String> queryParams = new HashMap<>();
 
-        if (StringUtils.isNoneBlank(query)) {
+        if (StringUtils.isNotBlank(query)) {
             queryParams.put("query", query);
         }
         if (load != null) {

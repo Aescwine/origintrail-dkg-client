@@ -1,11 +1,10 @@
-package io.origintrail.dkg.client.api;
+package io.origintrail.dkg.client.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.origintrail.dkg.client.exception.ClientRequestException;
 import io.origintrail.dkg.client.exception.HttpResponseException;
 import io.origintrail.dkg.client.exception.UnexpectedException;
-import io.origintrail.dkg.client.http.MultiPartBody;
 import io.origintrail.dkg.client.model.HandlerId;
 import io.origintrail.dkg.client.model.HttpUrlOptions;
 import io.origintrail.dkg.client.model.NQuad;
@@ -21,16 +20,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-class QueryApiService extends ApiRequestService {
+public class QueryService extends ApiRequestService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(QueryApiService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryService.class);
 
     private static final String QUERY_PATH = "query";
     private static final String QUERY_RESULT_PATH = "query/result";
     private static final String PROOFS_PATH = "proofs:get";
     private static final String PROOFS_RESULT_PATH = "proofs:get/result";
 
-    public QueryApiService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
+    public QueryService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
         super(httpClient, httpUrlOptions, LOGGER);
     }
 
@@ -40,13 +39,15 @@ class QueryApiService extends ApiRequestService {
                 .queryParameters(Collections.singletonMap("type", type.getValue()))
                 .build();
 
-        MultiPartBody.MultiPartBodyBuilder bodyPublisher = MultiPartBody
-                .builder()
-                .addPart("query", query);
+        String sparqlQuery = createSparqlRequestBody(query);
+        HttpRequest request = createHttpPOSTRequest(uri, sparqlQuery);
 
-        HttpRequest request = createMultiPartFormRequest(uri, bodyPublisher);
+        return sendAsyncRequest(request).thenApply(body -> transformBody(body, HandlerId.class));
+    }
 
-        return sendAsyncRequest(request, HandlerId.class);
+    private String createSparqlRequestBody(String query) {
+        ObjectNode sparqlQuery = OBJECT_MAPPER.createObjectNode();
+        return sparqlQuery.put("query", query).toString();
     }
 
     public CompletableFuture<JsonNode> getQueryResult(String handlerId) throws HttpResponseException, UnexpectedException {
@@ -56,7 +57,7 @@ class QueryApiService extends ApiRequestService {
 
         HttpRequest request = createHttpGETRequest(uri);
 
-        return sendAsyncRequest(request, JsonNode.class);
+        return sendAsyncRequest(request).thenApply(body -> transformBody(body, JsonNode.class));
     }
 
     public CompletableFuture<HandlerId> proofs(List<NQuad> nQuads, List<String> assertionIds)
@@ -67,22 +68,16 @@ class QueryApiService extends ApiRequestService {
                 .queryParameters("assertions", assertionIds)
                 .build();
 
-        String nQuadsJson = getNQuadsJson(nQuads);
-        MultiPartBody.MultiPartBodyBuilder bodyPublisher = MultiPartBody
-                .builder()
-                .addPart("nquads", nQuadsJson);
+        String nQuadsQuery = createNQuadsQuery(nQuads);
+        HttpRequest request = createHttpPOSTRequest(uri, nQuadsQuery);
 
-        HttpRequest request = createMultiPartFormRequest(uri, bodyPublisher);
-
-        return sendAsyncRequest(request, HandlerId.class);
+        return sendAsyncRequest(request)
+                .thenApply(body -> transformBody(body, HandlerId.class));
     }
 
-    private String getNQuadsJson(List<NQuad> nQuads) {
-        try {
-            return OBJECT_MAPPER.writeValueAsString(nQuads);
-        } catch (JsonProcessingException e) {
-            throw new ClientRequestException("Exception serializing N-Quads collection to JSON", e.getCause());
-        }
+    private String createNQuadsQuery(List<NQuad> nQuads) {
+        ObjectNode nQuadsObject = OBJECT_MAPPER.createObjectNode();
+        return nQuadsObject.putPOJO("nquads", nQuads).toString();
     }
 
     public CompletableFuture<JsonNode> getProofsResult(String handlerId) throws HttpResponseException, UnexpectedException {
@@ -92,6 +87,6 @@ class QueryApiService extends ApiRequestService {
 
         HttpRequest request = createHttpGETRequest(uri);
 
-        return sendAsyncRequest(request, JsonNode.class);
+        return sendAsyncRequest(request).thenApply(body -> transformBody(body, JsonNode.class));
     }
 }

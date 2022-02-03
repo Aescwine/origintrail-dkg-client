@@ -1,4 +1,4 @@
-package io.origintrail.dkg.client.api;
+package io.origintrail.dkg.client.service;
 
 import io.origintrail.dkg.client.exception.HttpResponseException;
 import io.origintrail.dkg.client.exception.UnexpectedException;
@@ -13,13 +13,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.util.concurrent.CompletableFuture;
 
-class InfoApiService extends ApiRequestService {
+public class InfoService extends ApiRequestService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InfoApiService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InfoService.class);
 
     private static final String INFO_PATH = "info";
 
-    public InfoApiService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
+    public InfoService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
         super(httpClient, httpUrlOptions, LOGGER);
     }
 
@@ -30,6 +30,7 @@ class InfoApiService extends ApiRequestService {
                 .build();
 
         HttpRequest request = createHttpGETRequest(uri);
-        return sendAsyncRequest(request, NodeInfo.class);
+        return sendAsyncRequest(request)
+                .thenApply(body -> transformBody(body, NodeInfo.class));
     }
 }

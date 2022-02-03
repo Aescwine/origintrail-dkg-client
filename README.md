@@ -110,10 +110,14 @@ publishResult.thenApply(r -> r.path("data").path("id").asText());
 
 When expected process flow is interrupted, **DKGClient** takes the approach of throwing unchecked exceptions of abstract type `DkgClientException`, rather than propagating exceptions up the stack.
 
+`CompletableFuture` objects throw exceptions of type `CompletionException`, which wrap the underlying cause, which can be accessed with `ex.getCause()`.
+
 Concrete exception types:
 - `ClientRequestException` - exception occurred preparing request.
 - `HttpResponseException` - exception occurred processing HTTP response.
+- `ResponseBodyException` - exception parsing response body.
 - `UriCreationException` - exception creating request Uri.
+- `UnexpectedException` - unexpected request/response processing exception.
 
 ## Logging Integration
 

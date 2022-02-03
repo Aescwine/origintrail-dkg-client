@@ -1,8 +1,10 @@
-package io.origintrail.dkg.client.api;
+package io.origintrail.dkg.client.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.origintrail.dkg.client.exception.DkgClientException;
 import io.origintrail.dkg.client.exception.HttpResponseException;
+import io.origintrail.dkg.client.exception.ResponseBodyException;
 import io.origintrail.dkg.client.exception.UnexpectedException;
 import io.origintrail.dkg.client.http.HttpMediaType;
 import io.origintrail.dkg.client.http.MultiPartBody;
@@ -14,16 +16,18 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Abstract class containing common methods for sending and managing HTTP requests to the DKG.
  */
 @Getter
-abstract class ApiRequestService {
+class ApiRequestService {
 
     static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(10);
     private final HttpClient httpClient;
     private final HttpUrlOptions httpUrlOptions;
     private final Logger logger;
@@ -36,34 +40,45 @@ abstract class ApiRequestService {
 
     HttpRequest createHttpGETRequest(URI uri) {
         return HttpRequest.newBuilder()
+                .timeout(DEFAULT_TIMEOUT_DURATION)
                 .uri(uri)
                 .GET()
                 .build();
     }
 
+    HttpRequest createHttpPOSTRequest(URI uri, String body) {
+        return HttpRequest.newBuilder()
+                .timeout(DEFAULT_TIMEOUT_DURATION)
+                .uri(uri)
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .header("Content-Type", HttpMediaType.APPLICATION_JSON.value())
+                .build();
+    }
+
     HttpRequest createMultiPartFormRequest(URI uri, MultiPartBody.MultiPartBodyBuilder bodyPublisher) {
         return HttpRequest.newBuilder()
+                .timeout(DEFAULT_TIMEOUT_DURATION)
                 .uri(uri)
                 .header("Content-Type", HttpMediaType.MULTIPART_FORM_DATA.value() + "; boundary=" + bodyPublisher.getBoundary())
                 .POST(bodyPublisher.build())
                 .build();
     }
 
-    public <T> CompletableFuture<T> sendAsyncRequest(HttpRequest request, Class<T> contentClass)
+    public CompletableFuture<String> sendAsyncRequest(HttpRequest request)
             throws UnexpectedException, HttpResponseException {
+
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(r -> {
-                    if (isSuccessResponse(r) && r.body() != null) {
-                        try {
-                            return transformBody(r, contentClass);
-                        } catch (JsonProcessingException e) {
-                            logger.error("Exception parsing response body content {}", e.getMessage());
-                            throw new UnexpectedException("Exception parsing response body content", e.getCause());
-                        }
+                    if (!isSuccessResponse(r)) {
+                        logger.warn("Unsuccessful response status: {}, {}", r.statusCode(), r.body());
+                        throw new HttpResponseException(r.statusCode(), r.body());
                     }
-                    throw new HttpResponseException(r.statusCode(), r.body());
+                    return r.body();
                 })
                 .exceptionally(ex -> {
+                    if (ex.getCause() instanceof DkgClientException) {
+                        throw (DkgClientException) ex.getCause();
+                    }
                     logger.error("Unexpected error sending http request: {}", ex.getMessage());
                     throw new UnexpectedException(ex.getMessage(), ex.getCause());
                 });
@@ -74,10 +89,15 @@ abstract class ApiRequestService {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T transformBody(HttpResponse<String> response, Class<T> contentClass) throws JsonProcessingException {
-        if (contentClass.isInstance(response.body())) {
-            return (T) response.body();
+    protected <T> T transformBody(String body, Class<T> contentClass) throws UnexpectedException {
+        try {
+            if (contentClass.isInstance(body)) {
+                return (T) body;
+            }
+            return OBJECT_MAPPER.readValue(body, contentClass);
+        } catch (JsonProcessingException e) {
+            logger.error("Exception parsing response body content: {}", e.getMessage());
+            throw new ResponseBodyException("Exception parsing response body content.", e.getCause());
         }
-        return OBJECT_MAPPER.readValue(response.body(), contentClass);
     }
 }

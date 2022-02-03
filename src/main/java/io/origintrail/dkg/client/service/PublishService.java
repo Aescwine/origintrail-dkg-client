@@ -1,4 +1,4 @@
-package io.origintrail.dkg.client.api;
+package io.origintrail.dkg.client.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.origintrail.dkg.client.exception.ClientRequestException;
@@ -25,14 +25,14 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.lang.String.format;
 
-class PublishApiService extends ApiRequestService {
+public class PublishService extends ApiRequestService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PublishApiService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PublishService.class);
 
     private static final String PUBLISH_PATH = "publish";
     private static final String PUBLISH_RESULT_PATH = "publish/result";
 
-    public PublishApiService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
+    public PublishService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
         super(httpClient, httpUrlOptions, LOGGER);
     }
 
@@ -46,7 +46,6 @@ class PublishApiService extends ApiRequestService {
                 .build();
 
         MultiPartData multiPartData = new MultiPartData(HttpMediaType.APPLICATION_JSON_LD.value(), fileData);
-
         MultiPartBody.MultiPartBodyBuilder bodyPublisher = MultiPartBody
                 .builder()
                 .addFilePart("file", fileName, multiPartData)
@@ -58,8 +57,7 @@ class PublishApiService extends ApiRequestService {
         }
 
         HttpRequest request = createMultiPartFormRequest(uri, bodyPublisher);
-
-        return sendAsyncRequest(request, HandlerId.class);
+        return sendAsyncRequest(request).thenApply(body -> transformBody(body, HandlerId.class));
     }
 
     private void validateRequest(String fileName, byte[] fileData, PublishOptions publishOptions) {
@@ -82,11 +80,7 @@ class PublishApiService extends ApiRequestService {
                 .pathSegments(List.of(PUBLISH_RESULT_PATH, handlerId))
                 .build();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .GET()
-                .build();
-
-        return sendAsyncRequest(request, JsonNode.class);
+        HttpRequest request = createHttpGETRequest(uri);
+        return sendAsyncRequest(request).thenApply(body -> transformBody(body, JsonNode.class));
     }
 }

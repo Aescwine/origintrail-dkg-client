@@ -1,6 +1,7 @@
-package io.origintrail.dkg.client.api;
+package io.origintrail.dkg.client.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.origintrail.dkg.client.DkgClient;
 import io.origintrail.dkg.client.model.AssertionSearchOptions;
 import io.origintrail.dkg.client.model.EntitySearchOptions;
 import io.origintrail.dkg.client.model.HandlerId;
@@ -33,7 +34,7 @@ public class DkgClientIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DkgClientIntegrationTest.class);
 
-    private static final String HOST = "localhost"; // your local node instance
+    private static final String HOST = "172.17.119.10"; // your local node instance
     private static final int PORT = 8900;
 
     private static final String HANDLER_ID_REGEX = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
@@ -54,7 +55,7 @@ public class DkgClientIntegrationTest {
     }
 
     @Test
-    void resolve_multipleAssertions_resultContainsDataForTwoAssertions() throws IOException, InterruptedException {
+    void proofs_multipleAssertions_resultContainsDataForTwoAssertions() throws IOException, InterruptedException {
         String randomKeywordForTest = "keyword" + UUID.randomUUID().toString().substring(0, 5);
         String randomAssetForTest = "asset" + UUID.randomUUID().toString().substring(0, 5);
 
@@ -68,8 +69,8 @@ public class DkgClientIntegrationTest {
         HandlerId publishHandlerId2 = publishAssertion(randomKeywordForTest, randomAssetForTest);
         assertThat(publishHandlerId2.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
 
-        // sleep for 5 seconds to allow publish to complete
-        Thread.sleep(5000);
+        // sleep for 10 seconds to allow publish to complete
+        Thread.sleep(10000);
 
         // get publish results
         JsonNode publishedAssertionJson1 = getPublishResult(publishHandlerId1);
@@ -89,13 +90,14 @@ public class DkgClientIntegrationTest {
         // sleep for 5 second to allow proofs query to complete
         Thread.sleep(5000);
 
+        // get proofs result - should contain proofs for two assertions
         JsonNode proofsQueryResult = proofsQueryResult(proofsQueryHandlerId);
         assertThat(proofsQueryResult.get("status").asText()).isEqualTo(COMPLETED);
-        LOGGER.info("Proofs query result received");
+        assertThat(proofsQueryResult.get("data").size()).isEqualTo(2);
     }
 
     @Test
-    void proofs_multipleAssertions_resultContainsDataForTwoAssertions() throws IOException, InterruptedException {
+    void resolve_multipleAssertions_resultContainsDataForTwoAssertions() throws IOException, InterruptedException {
         String randomKeywordForTest = "keyword" + UUID.randomUUID().toString().substring(0, 5);
         String randomAssetForTest = "asset" + UUID.randomUUID().toString().substring(0, 5);
 
@@ -109,8 +111,8 @@ public class DkgClientIntegrationTest {
         HandlerId publishHandlerId2 = publishAssertion(randomKeywordForTest, randomAssetForTest);
         assertThat(publishHandlerId2.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
 
-        // sleep for 5 seconds to allow publish to complete
-        Thread.sleep(5000);
+        // sleep for 10 seconds to allow publish to complete
+        Thread.sleep(10000);
 
         // get publish results
         JsonNode publishedAssertionJson1 = getPublishResult(publishHandlerId1);
@@ -129,7 +131,7 @@ public class DkgClientIntegrationTest {
         // sleep for 3 seconds to allow resolve to complete
         Thread.sleep(3000);
 
-        // get resolve result
+        // get resolve result - should contain two resolved assertions
         JsonNode resolvedAssertionJson = getResolveResult(resolveHandlerId);
         assertThat(resolvedAssertionJson.get("status").asText()).isEqualTo(COMPLETED);
         assertThat(resolvedAssertionJson.get("data").size()).isEqualTo(2);

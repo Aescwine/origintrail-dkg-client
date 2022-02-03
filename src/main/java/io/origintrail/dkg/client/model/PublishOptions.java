@@ -1,13 +1,11 @@
 package io.origintrail.dkg.client.model;
 
 import lombok.Getter;
-import lombok.ToString;
 
 /**
  * Class for encapsulating DKG POST /publish request properties.
  */
 @Getter
-@ToString
 public class PublishOptions {
 
     private final String assets;
@@ -45,15 +43,6 @@ public class PublishOptions {
 
         public PublishOptions build() {
             return new PublishOptions(assets, keywords, visibility);
-        }
-
-        @Override
-        public String toString() {
-            return "PublishOptionsBuilder{" +
-                    "assets='" + assets + '\'' +
-                    ", keywords='" + keywords + '\'' +
-                    ", visibility=" + visibility +
-                    '}';
         }
     }
 }

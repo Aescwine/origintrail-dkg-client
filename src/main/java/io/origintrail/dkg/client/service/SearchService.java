@@ -1,4 +1,4 @@
-package io.origintrail.dkg.client.api;
+package io.origintrail.dkg.client.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.origintrail.dkg.client.exception.ClientRequestException;
@@ -19,16 +19,16 @@ import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-class SearchApiService extends ApiRequestService {
+public class SearchService extends ApiRequestService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchApiService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
 
     private static final String ENTITIES_SEARCH_PATH = "entities:search";
     private static final String ENTITIES_SEARCH_RESULT_PATH = "entities:search/result";
     private static final String ASSERTIONS_SEARCH_PATH = "assertions:search";
     private static final String ASSERTIONS_SEARCH_RESULT_PATH = "assertions:search/result";
 
-    public SearchApiService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
+    public SearchService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
         super(httpClient, httpUrlOptions, LOGGER);
     }
 
@@ -44,7 +44,7 @@ class SearchApiService extends ApiRequestService {
 
         HttpRequest request = createHttpGETRequest(uri);
 
-        return sendAsyncRequest(request, HandlerId.class);
+        return sendAsyncRequest(request).thenApply(body -> transformBody(body, HandlerId.class));
     }
 
     private void validateEntitySearchOptions(EntitySearchOptions entitySearchOptions) {
@@ -64,7 +64,7 @@ class SearchApiService extends ApiRequestService {
 
         HttpRequest request = createHttpGETRequest(uri);
 
-        return sendAsyncRequest(request, JsonNode.class);
+        return sendAsyncRequest(request).thenApply(body -> transformBody(body, JsonNode.class));
     }
 
     public CompletableFuture<HandlerId> assertionsSearch(AssertionSearchOptions assertionSearchOptions)
@@ -78,7 +78,8 @@ class SearchApiService extends ApiRequestService {
                 .build();
 
         HttpRequest request = createHttpGETRequest(uri);
-        return sendAsyncRequest(request, HandlerId.class);
+
+        return sendAsyncRequest(request).thenApply(body -> transformBody(body, HandlerId.class));
     }
 
     private void validateAssertionSearchOptions(AssertionSearchOptions assertionSearchOptions) {
@@ -96,6 +97,7 @@ class SearchApiService extends ApiRequestService {
                 .build();
 
         HttpRequest request = createHttpGETRequest(uri);
-        return sendAsyncRequest(request, JsonNode.class);
+
+        return sendAsyncRequest(request).thenApply(body -> transformBody(body, JsonNode.class));
     }
 }

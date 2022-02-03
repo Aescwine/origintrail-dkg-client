@@ -26,22 +26,22 @@ public class EntitySearchOptions {
     public Map<String, String> getQueryParameters() {
         Map<String, String> queryParams = new HashMap<>();
 
-        if (StringUtils.isNoneBlank(query)) {
+        if (StringUtils.isNotBlank(query)) {
             queryParams.put("query", query);
         }
-        if (StringUtils.isNoneBlank(ids)) {
+        if (StringUtils.isNotBlank(ids)) {
             queryParams.put("ids", ids);
         }
-        if (StringUtils.isNoneBlank(issuers)) {
+        if (StringUtils.isNotBlank(issuers)) {
             queryParams.put("issuers", issuers);
         }
-        if (StringUtils.isNoneBlank(types)) {
+        if (StringUtils.isNotBlank(types)) {
             queryParams.put("types", types);
         }
         if (prefix != null) {
             queryParams.put("prefix", prefix.toString());
         }
-        if (StringUtils.isNoneBlank(framingCriteria)) {
+        if (StringUtils.isNotBlank(framingCriteria)) {
             queryParams.put("framingCriteria", framingCriteria);
         }
         if (limit != null) {

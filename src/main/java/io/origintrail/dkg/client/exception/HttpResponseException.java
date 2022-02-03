@@ -20,12 +20,4 @@ public class HttpResponseException extends DkgClientException {
         this.statusCode = statusCode;
         this.reasonPhrase = reasonPhrase;
     }
-
-    public int getStatusCode() {
-        return this.statusCode;
-    }
-
-    public String getReasonPhrase() {
-        return this.reasonPhrase;
-    }
 }

@@ -1,8 +1,5 @@
 package io.origintrail.dkg.client.http;
 
-import lombok.Getter;
-
-@Getter
 public enum HttpMediaType {
 
     APPLICATION_JSON("application/json; charset=utf-8"),

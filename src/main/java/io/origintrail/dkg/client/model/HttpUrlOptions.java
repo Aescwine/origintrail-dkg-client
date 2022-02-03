@@ -17,8 +17,4 @@ public class HttpUrlOptions {
         this.port = port;
         this.scheme = scheme;
     }
-
-    public HttpUrlOptions(String host, int port) {
-        this(host, port, "http");
-    }
 }
