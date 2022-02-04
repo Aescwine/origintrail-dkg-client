@@ -13,4 +13,5 @@ public class PublishResultData {
     private Metadata metadata;
     private Assertion assertion;
     private List<String> rdf;
+    private String message;
 }
