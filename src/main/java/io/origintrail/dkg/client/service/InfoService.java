@@ -1,6 +1,6 @@
 package io.origintrail.dkg.client.service;
 
-import io.origintrail.dkg.client.model.NodeInfo;
+import io.origintrail.dkg.client.model.response.NodeInfo;
 import io.origintrail.dkg.client.util.UriUtil;
 
 import java.net.URI;

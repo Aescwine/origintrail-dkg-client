@@ -1,7 +1,5 @@
 package io.origintrail.dkg.client.http;
 
-import io.origintrail.dkg.client.model.MultiPartData;
-
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

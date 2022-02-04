@@ -4,11 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.origintrail.dkg.client.DkgClient;
 import io.origintrail.dkg.client.model.AssertionSearchOptions;
 import io.origintrail.dkg.client.model.EntitySearchOptions;
-import io.origintrail.dkg.client.model.HandlerId;
 import io.origintrail.dkg.client.model.NQuad;
-import io.origintrail.dkg.client.model.NodeInfo;
 import io.origintrail.dkg.client.model.PublishOptions;
 import io.origintrail.dkg.client.model.SparqlQueryType;
+import io.origintrail.dkg.client.model.response.HandlerId;
+import io.origintrail.dkg.client.model.response.NodeInfo;
+import io.origintrail.dkg.client.model.response.ProofsResult;
+import io.origintrail.dkg.client.model.response.PublishResult;
+import io.origintrail.dkg.client.model.response.QueryResult;
+import io.origintrail.dkg.client.model.response.ResolveResult;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.arq.querybuilder.ConstructBuilder;
 import org.junit.jupiter.api.Test;
@@ -73,13 +77,13 @@ public class DkgClientIntegrationTest {
         Thread.sleep(10000);
 
         // get publish results
-        JsonNode publishedAssertionJson1 = getPublishResult(publishHandlerId1);
-        assertThat(publishedAssertionJson1.get("status").asText()).isEqualTo(COMPLETED);
-        String assertionId1 = publishedAssertionJson1.path("data").path("id").asText();
+        PublishResult publishedAssertion1 = getPublishResult(publishHandlerId1);
+        assertThat(publishedAssertion1.getStatus()).isEqualTo(COMPLETED);
+        String assertionId1 = publishedAssertion1.getData().getId();
 
-        JsonNode publishedAssertionJson2 = getPublishResult(publishHandlerId2);
-        assertThat(publishedAssertionJson2.get("status").asText()).isEqualTo(COMPLETED);
-        String assertionId2 = publishedAssertionJson2.path("data").path("id").asText();
+        PublishResult publishedAssertion2 = getPublishResult(publishHandlerId2);
+        assertThat(publishedAssertion2.getStatus()).isEqualTo(COMPLETED);
+        String assertionId2 = publishedAssertion2.getData().getId();
 
 
         // get proofs
@@ -91,9 +95,9 @@ public class DkgClientIntegrationTest {
         Thread.sleep(5000);
 
         // get proofs result - should contain proofs for two assertions
-        JsonNode proofsQueryResult = proofsQueryResult(proofsQueryHandlerId);
-        assertThat(proofsQueryResult.get("status").asText()).isEqualTo(COMPLETED);
-        assertThat(proofsQueryResult.get("data").size()).isEqualTo(2);
+        ProofsResult proofsResult = proofsQueryResult(proofsQueryHandlerId);
+        assertThat(proofsResult.getStatus()).isEqualTo(COMPLETED);
+        assertThat(proofsResult.getData().size()).isEqualTo(2);
     }
 
     @Test
@@ -115,13 +119,13 @@ public class DkgClientIntegrationTest {
         Thread.sleep(10000);
 
         // get publish results
-        JsonNode publishedAssertionJson1 = getPublishResult(publishHandlerId1);
-        assertThat(publishedAssertionJson1.get("status").asText()).isEqualTo(COMPLETED);
-        String assertionId1 = publishedAssertionJson1.path("data").path("id").asText();
+        PublishResult publishedAssertion1 = getPublishResult(publishHandlerId1);
+        assertThat(publishedAssertion1.getStatus()).isEqualTo(COMPLETED);
+        String assertionId1 = publishedAssertion1.getData().getId();
 
-        JsonNode publishedAssertionJson2 = getPublishResult(publishHandlerId2);
-        assertThat(publishedAssertionJson2.get("status").asText()).isEqualTo(COMPLETED);
-        String assertionId2 = publishedAssertionJson2.path("data").path("id").asText();
+        PublishResult publishedAssertion2 = getPublishResult(publishHandlerId2);
+        assertThat(publishedAssertion2.getStatus()).isEqualTo(COMPLETED);
+        String assertionId2 = publishedAssertion2.getData().getId();
 
 
         // resolve assertions
@@ -132,9 +136,9 @@ public class DkgClientIntegrationTest {
         Thread.sleep(3000);
 
         // get resolve result - should contain two resolved assertions
-        JsonNode resolvedAssertionJson = getResolveResult(resolveHandlerId);
-        assertThat(resolvedAssertionJson.get("status").asText()).isEqualTo(COMPLETED);
-        assertThat(resolvedAssertionJson.get("data").size()).isEqualTo(2);
+        ResolveResult resolvedAssertion = getResolveResult(resolveHandlerId);
+        assertThat(resolvedAssertion.getStatus()).isEqualTo(COMPLETED);
+        assertThat(resolvedAssertion.getData().size()).isEqualTo(2);
     }
 
     @Test
@@ -152,9 +156,9 @@ public class DkgClientIntegrationTest {
         Thread.sleep(10000);
 
         // get publish result
-        JsonNode publishedAssertionJson = getPublishResult(publishHandlerId);
-        assertThat(publishedAssertionJson.get("status").asText()).isEqualTo(COMPLETED);
-        String assertionId = publishedAssertionJson.path("data").path("id").asText();
+        PublishResult publishedAssertion = getPublishResult(publishHandlerId);
+        assertThat(publishedAssertion.getStatus()).isEqualTo(COMPLETED);
+        String assertionId = publishedAssertion.getData().getId();
         LOGGER.info("Assertion received");
 
 
@@ -167,8 +171,8 @@ public class DkgClientIntegrationTest {
         Thread.sleep(3000);
 
         // get resolve result
-        JsonNode resolvedAssertionJson = getResolveResult(resolveHandlerId);
-        assertThat(resolvedAssertionJson.get("status").asText()).isEqualTo(COMPLETED);
+        ResolveResult resolvedAssertion = getResolveResult(resolveHandlerId);
+        assertThat(resolvedAssertion.getStatus()).isEqualTo(COMPLETED);
         LOGGER.info("Assertion resolve result received");
 
 
@@ -213,10 +217,9 @@ public class DkgClientIntegrationTest {
         Thread.sleep(1000);
 
         // SPARQL query result
-        JsonNode sparqlQueryResult = sparqlQueryResult(sparqlQueryHandlerId);
-        assertThat(sparqlQueryResult.get("status").asText()).isEqualTo(COMPLETED);
-        assertThat(sparqlQueryResult.has("data")).isTrue();
-        assertThat(sparqlQueryResult.get("data").size()).isEqualTo(3);
+        QueryResult sparqlQueryResult = sparqlQueryResult(sparqlQueryHandlerId);
+        assertThat(sparqlQueryResult.getStatus()).isEqualTo(COMPLETED);
+        assertThat(sparqlQueryResult.getData().size()).isEqualTo(3);
         LOGGER.info("SPARQL query result received");
 
 
@@ -228,8 +231,8 @@ public class DkgClientIntegrationTest {
         // sleep for 5 second to allow proofs query to complete
         Thread.sleep(5000);
 
-        JsonNode proofsQueryResult = proofsQueryResult(proofsQueryHandlerId);
-        assertThat(proofsQueryResult.get("status").asText()).isEqualTo(COMPLETED);
+        ProofsResult proofsResult = proofsQueryResult(proofsQueryHandlerId);
+        assertThat(proofsResult.getStatus()).isEqualTo(COMPLETED);
         LOGGER.info("Proofs query result received");
     }
 
@@ -253,8 +256,8 @@ public class DkgClientIntegrationTest {
         return publishHandlerIdCompletableFuture.join();
     }
 
-    private JsonNode getPublishResult(HandlerId publishHandlerId) {
-        CompletableFuture<JsonNode> publishResult = dkgClient.getPublishResult(publishHandlerId.getHandlerId());
+    private PublishResult getPublishResult(HandlerId publishHandlerId) {
+        CompletableFuture<PublishResult> publishResult = dkgClient.getPublishResult(publishHandlerId.getHandlerId());
         return publishResult.join();
     }
 
@@ -268,8 +271,8 @@ public class DkgClientIntegrationTest {
         return resolveHandlerIdCompletableFuture.join();
     }
 
-    private JsonNode getResolveResult(HandlerId resolveHandlerId) {
-        CompletableFuture<JsonNode> resolveResult = dkgClient.getResolveResult(resolveHandlerId.getHandlerId());
+    private ResolveResult getResolveResult(HandlerId resolveHandlerId) {
+        CompletableFuture<ResolveResult> resolveResult = dkgClient.getResolveResult(resolveHandlerId.getHandlerId());
         return resolveResult.join();
     }
 
@@ -306,8 +309,8 @@ public class DkgClientIntegrationTest {
         return queryHandlerId.join();
     }
 
-    private JsonNode sparqlQueryResult(HandlerId sparqlQueryHandlerId) {
-        CompletableFuture<JsonNode> result = dkgClient.getQueryResult(sparqlQueryHandlerId.getHandlerId());
+    private QueryResult sparqlQueryResult(HandlerId sparqlQueryHandlerId) {
+        CompletableFuture<QueryResult> result = dkgClient.getQueryResult(sparqlQueryHandlerId.getHandlerId());
         return result.join();
     }
 
@@ -320,8 +323,8 @@ public class DkgClientIntegrationTest {
         return result.join();
     }
 
-    private JsonNode proofsQueryResult(HandlerId proofsHandlerId) {
-        CompletableFuture<JsonNode> proofsResult = dkgClient.getProofsResult(proofsHandlerId.getHandlerId());
+    private ProofsResult proofsQueryResult(HandlerId proofsHandlerId) {
+        CompletableFuture<ProofsResult> proofsResult = dkgClient.getProofsResult(proofsHandlerId.getHandlerId());
         return proofsResult.join();
     }
 }

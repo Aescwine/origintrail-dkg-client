@@ -1,11 +1,13 @@
 package io.origintrail.dkg.client.model;
 
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Class for encapsulating DKG POST /publish request properties.
  */
 @Getter
+@ToString
 public class PublishOptions {
 
     private final String assets;

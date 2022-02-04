@@ -1,11 +1,13 @@
 package io.origintrail.dkg.client.model;
 
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * {@code HttpUrlOptions} used for configuring http connection options.
  */
 @Getter
+@ToString
 public class HttpUrlOptions {
 
     private final String scheme;

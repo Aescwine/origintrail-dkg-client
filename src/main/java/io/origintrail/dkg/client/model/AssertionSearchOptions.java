@@ -1,6 +1,7 @@
 package io.origintrail.dkg.client.model;
 
 import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.Map;
  * Class for encapsulating DKG GET /assertions:search request parameters.
  */
 @Getter
+@ToString
 public class AssertionSearchOptions {
 
     private final String query;

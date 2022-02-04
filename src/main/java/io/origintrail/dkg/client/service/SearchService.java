@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.origintrail.dkg.client.exception.RequestValidationException;
 import io.origintrail.dkg.client.model.AssertionSearchOptions;
 import io.origintrail.dkg.client.model.EntitySearchOptions;
-import io.origintrail.dkg.client.model.HandlerId;
+import io.origintrail.dkg.client.model.response.HandlerId;
 import io.origintrail.dkg.client.util.UriUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -15,6 +17,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 public class SearchService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
 
     private static final String ENTITIES_SEARCH_PATH = "entities:search";
     private static final String ENTITIES_SEARCH_RESULT_PATH = "entities:search/result";
@@ -47,6 +51,7 @@ public class SearchService {
         if (entitySearchOptions == null
                 || (StringUtils.isBlank(entitySearchOptions.getQuery())
                 && StringUtils.isBlank(entitySearchOptions.getIds()))) {
+            LOGGER.error(String.format("Entity search options 'query' or 'ids' are required. EntitySearchOptions: %s", entitySearchOptions));
             throw new RequestValidationException("Entity search options 'query' or 'ids' are required.");
         }
     }
@@ -83,6 +88,7 @@ public class SearchService {
     private void validateAssertionSearchOptions(AssertionSearchOptions assertionSearchOptions) {
         if (assertionSearchOptions == null
                 || (StringUtils.isBlank(assertionSearchOptions.getQuery()))) {
+            LOGGER.error(String.format("Assertion search option 'query' is required. AssertionSearchOptions: %s", assertionSearchOptions));
             throw new RequestValidationException("Assertion search option 'query' is required.");
         }
     }

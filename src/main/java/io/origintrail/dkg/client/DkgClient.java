@@ -4,12 +4,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.origintrail.dkg.client.exception.RequestValidationException;
 import io.origintrail.dkg.client.model.AssertionSearchOptions;
 import io.origintrail.dkg.client.model.EntitySearchOptions;
-import io.origintrail.dkg.client.model.HandlerId;
 import io.origintrail.dkg.client.model.HttpUrlOptions;
 import io.origintrail.dkg.client.model.NQuad;
-import io.origintrail.dkg.client.model.NodeInfo;
 import io.origintrail.dkg.client.model.PublishOptions;
 import io.origintrail.dkg.client.model.SparqlQueryType;
+import io.origintrail.dkg.client.model.response.HandlerId;
+import io.origintrail.dkg.client.model.response.NodeInfo;
+import io.origintrail.dkg.client.model.response.ProofsResult;
+import io.origintrail.dkg.client.model.response.PublishResult;
+import io.origintrail.dkg.client.model.response.QueryResult;
+import io.origintrail.dkg.client.model.response.ResolveResult;
 import io.origintrail.dkg.client.service.ApiRequestService;
 import io.origintrail.dkg.client.service.InfoService;
 import io.origintrail.dkg.client.service.PublishService;
@@ -137,12 +141,12 @@ public class DkgClient {
      * Get the result of a previous publish request.
      *
      * @param handlerId The {@code handler_id} returned in the publish response you want to retrieve.
-     * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
+     * @return A {@code CompletableFuture<PublishResult>} containing a {@code PublishResult} representing the publish result.
      * @throws CompletionException if the call to the DKG API returns an error status code,
      *                             or if the response body is not in the expected format,
      *                             or if an unexpected exception occurs during processing of the request/response.
      */
-    public CompletableFuture<JsonNode> getPublishResult(String handlerId)
+    public CompletableFuture<PublishResult> getPublishResult(String handlerId)
             throws CompletionException {
         return publishService.getPublishResult(handlerId);
     }
@@ -165,12 +169,12 @@ public class DkgClient {
      * Get the result of a previous resolve request.
      *
      * @param handlerId The {@code handler_id} returned in the resolve response you want to retrieve.
-     * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
+     * @return A {@code CompletableFuture<ResolveResult>} containing a {@code ResolveResult} representing the resolve result.
      * @throws CompletionException if the call to the DKG API returns an error status code,
      *                             or if the response body is not in the expected format,
      *                             or if an unexpected exception occurs during processing of the request/response.
      */
-    public CompletableFuture<JsonNode> getResolveResult(String handlerId)
+    public CompletableFuture<ResolveResult> getResolveResult(String handlerId)
             throws CompletionException {
         return resolveService.getResolveResult(handlerId);
     }
@@ -268,12 +272,12 @@ public class DkgClient {
      * Get the result of a previous SPARQL query.
      *
      * @param handlerId The {@code handler_id} returned in the SPARQL query response you want to retrieve.
-     * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
+     * @return A {@code CompletableFuture<QueryResult>} containing a {@code QueryResult} representing the query result.
      * @throws CompletionException if the call to the DKG API returns an error status code,
      *                             or if the response body is not in the expected format,
      *                             or if an unexpected exception occurs during processing of the request/response.
      */
-    public CompletableFuture<JsonNode> getQueryResult(String handlerId)
+    public CompletableFuture<QueryResult> getQueryResult(String handlerId)
             throws CompletionException {
         return queryService.getQueryResult(handlerId);
     }
@@ -297,12 +301,12 @@ public class DkgClient {
      * Get the result of a previous proofs query.
      *
      * @param handlerId The {@code handler_id} returned in the proofs query response you want to retrieve.
-     * @return A {@code CompletableFuture<JsonNode>} containing a {@code JsonNode} representing the JSON response.
+     * @return A {@code CompletableFuture<ProofsResult>} containing a {@code ProofsResult} representing the proofs result.
      * @throws CompletionException if the call to the DKG API returns an error status code,
      *                             or if the response body is not in the expected format,
      *                             or if an unexpected exception occurs during processing of the request/response.
      */
-    public CompletableFuture<JsonNode> getProofsResult(String handlerId)
+    public CompletableFuture<ProofsResult> getProofsResult(String handlerId)
             throws CompletionException {
         return queryService.getProofsResult(handlerId);
     }

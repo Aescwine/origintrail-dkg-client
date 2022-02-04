@@ -1,7 +1,7 @@
 package io.origintrail.dkg.client.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import io.origintrail.dkg.client.model.HandlerId;
+import io.origintrail.dkg.client.model.response.HandlerId;
+import io.origintrail.dkg.client.model.response.ResolveResult;
 import io.origintrail.dkg.client.util.UriUtil;
 
 import java.net.URI;
@@ -32,13 +32,13 @@ public class ResolveService {
         return apiRequestService.sendAsyncRequest(request).thenApply(body -> apiRequestService.transformBody(body, HandlerId.class));
     }
 
-    public CompletableFuture<JsonNode> getResolveResult(String handlerId) throws CompletionException {
+    public CompletableFuture<ResolveResult> getResolveResult(String handlerId) throws CompletionException {
         URI uri = UriUtil.builder().httpUrlOptions(apiRequestService.getHttpUrlOptions())
                 .pathSegments(List.of(RESOLVE_RESULT_PATH, handlerId))
                 .build();
 
         HttpRequest request = apiRequestService.createHttpGETRequest(uri);
 
-        return apiRequestService.sendAsyncRequest(request).thenApply(body -> apiRequestService.transformBody(body, JsonNode.class));
+        return apiRequestService.sendAsyncRequest(request).thenApply(body -> apiRequestService.transformBody(body, ResolveResult.class));
     }
 }

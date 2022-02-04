@@ -1,10 +1,11 @@
 package io.origintrail.dkg.client.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.origintrail.dkg.client.model.HandlerId;
 import io.origintrail.dkg.client.model.NQuad;
 import io.origintrail.dkg.client.model.SparqlQueryType;
+import io.origintrail.dkg.client.model.response.HandlerId;
+import io.origintrail.dkg.client.model.response.ProofsResult;
+import io.origintrail.dkg.client.model.response.QueryResult;
 import io.origintrail.dkg.client.util.UriUtil;
 
 import java.net.URI;
@@ -47,7 +48,7 @@ public class QueryService {
         return sparqlQuery.put("query", query).toString();
     }
 
-    public CompletableFuture<JsonNode> getQueryResult(String handlerId) throws CompletionException {
+    public CompletableFuture<QueryResult> getQueryResult(String handlerId) throws CompletionException {
         URI uri = UriUtil.builder().httpUrlOptions(apiRequestService.getHttpUrlOptions())
                 .pathSegments(List.of(QUERY_RESULT_PATH, handlerId))
                 .build();
@@ -55,7 +56,7 @@ public class QueryService {
         HttpRequest request = apiRequestService.createHttpGETRequest(uri);
 
         return apiRequestService.sendAsyncRequest(request)
-                .thenApply(body -> apiRequestService.transformBody(body, JsonNode.class));
+                .thenApply(body -> apiRequestService.transformBody(body, QueryResult.class));
     }
 
     public CompletableFuture<HandlerId> proofs(List<NQuad> nQuads, List<String> assertionIds)
@@ -78,7 +79,7 @@ public class QueryService {
         return nQuadsObject.putPOJO("nquads", nQuads).toString();
     }
 
-    public CompletableFuture<JsonNode> getProofsResult(String handlerId) throws CompletionException {
+    public CompletableFuture<ProofsResult> getProofsResult(String handlerId) throws CompletionException {
         URI uri = UriUtil.builder().httpUrlOptions(apiRequestService.getHttpUrlOptions())
                 .pathSegments(List.of(PROOFS_RESULT_PATH, handlerId))
                 .build();
@@ -86,6 +87,6 @@ public class QueryService {
         HttpRequest request = apiRequestService.createHttpGETRequest(uri);
 
         return apiRequestService.sendAsyncRequest(request)
-                .thenApply(body -> apiRequestService.transformBody(body, JsonNode.class));
+                .thenApply(body -> apiRequestService.transformBody(body, ProofsResult.class));
     }
 }

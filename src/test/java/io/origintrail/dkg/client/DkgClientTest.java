@@ -5,11 +5,15 @@ import io.origintrail.dkg.client.exception.RequestValidationException;
 import io.origintrail.dkg.client.exception.ResponseBodyException;
 import io.origintrail.dkg.client.model.AssertionSearchOptions;
 import io.origintrail.dkg.client.model.EntitySearchOptions;
-import io.origintrail.dkg.client.model.HandlerId;
 import io.origintrail.dkg.client.model.NQuad;
-import io.origintrail.dkg.client.model.NodeInfo;
 import io.origintrail.dkg.client.model.PublishOptions;
 import io.origintrail.dkg.client.model.SparqlQueryType;
+import io.origintrail.dkg.client.model.response.HandlerId;
+import io.origintrail.dkg.client.model.response.NodeInfo;
+import io.origintrail.dkg.client.model.response.ProofsResult;
+import io.origintrail.dkg.client.model.response.PublishResult;
+import io.origintrail.dkg.client.model.response.QueryResult;
+import io.origintrail.dkg.client.model.response.ResolveResult;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -199,12 +203,13 @@ class DkgClientTest {
         mockWebServer.enqueue(new MockResponse().setBody(new String(fileData)).setResponseCode(200));
 
         // when
-        CompletableFuture<JsonNode> jsonNodeCompletableFuture = dkgClient.getPublishResult(HANDLER_ID);
-        JsonNode jsonNode = jsonNodeCompletableFuture.join();
+        CompletableFuture<PublishResult> publishResultCompletableFuture = dkgClient.getPublishResult(HANDLER_ID);
+        PublishResult publishResult = publishResultCompletableFuture.join();
 
         // then
-        assertThat(jsonNode).isNotNull();
-        assertThat(jsonNode.get("data").get("id").textValue()).isEqualTo("797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99");
+        assertThat(publishResult).isNotNull();
+        assertThat(publishResult.getData().getId()).isEqualTo("797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99");
+        assertThat(publishResult.getData().getAssertion().getData()).isNotNull();
 
         RecordedRequest request = mockWebServer.takeRequest();
         assertThat(request.getMethod()).isEqualTo("GET");
@@ -241,12 +246,12 @@ class DkgClientTest {
         mockWebServer.enqueue(new MockResponse().setBody(new String(fileData)).setResponseCode(200));
 
         // when
-        CompletableFuture<JsonNode> jsonNodeCompletableFuture = dkgClient.getResolveResult(HANDLER_ID);
-        JsonNode jsonNode = jsonNodeCompletableFuture.join();
+        CompletableFuture<ResolveResult> resolveResultCompletableFuture = dkgClient.getResolveResult(HANDLER_ID);
+        ResolveResult resolveResult = resolveResultCompletableFuture.join();
 
         // then
-        assertThat(jsonNode).isNotNull();
-        assertThat(jsonNode.get("data").get(0).fieldNames().next()).isEqualTo("74001d8da754467ebd785d12e8aed495cf7dec91d4006eff3daf164dc0be4bec");
+        assertThat(resolveResult).isNotNull();
+//        assertThat(resolveResult.getData().get(0).).isEqualTo("74001d8da754467ebd785d12e8aed495cf7dec91d4006eff3daf164dc0be4bec");
 
         RecordedRequest request = mockWebServer.takeRequest();
         assertThat(request.getMethod()).isEqualTo("GET");
@@ -398,13 +403,13 @@ class DkgClientTest {
         mockWebServer.enqueue(new MockResponse().setBody(new String(fileData)).setResponseCode(200));
 
         // when
-        CompletableFuture<JsonNode> jsonNodeCompletableFuture = dkgClient.getQueryResult(HANDLER_ID);
-        JsonNode jsonNode = jsonNodeCompletableFuture.join();
+        CompletableFuture<QueryResult> queryResultCompletableFuture = dkgClient.getQueryResult(HANDLER_ID);
+        QueryResult queryResult = queryResultCompletableFuture.join();
 
         // then
-        assertThat(jsonNode).isNotNull();
-        assertThat(jsonNode.get("status").textValue()).isEqualTo("COMPLETED");
-        assertThat(jsonNode.get("data").size()).isEqualTo(18);
+        assertThat(queryResult).isNotNull();
+        assertThat(queryResult.getStatus()).isEqualTo("COMPLETED");
+        assertThat(queryResult.getData().size()).isEqualTo(18);
 
         RecordedRequest request = mockWebServer.takeRequest();
         assertThat(request.getMethod()).isEqualTo("GET");
@@ -442,13 +447,13 @@ class DkgClientTest {
         mockWebServer.enqueue(new MockResponse().setBody(new String(fileData)).setResponseCode(200));
 
         // when
-        CompletableFuture<JsonNode> jsonNodeCompletableFuture = dkgClient.getProofsResult(HANDLER_ID);
-        JsonNode jsonNode = jsonNodeCompletableFuture.join();
+        CompletableFuture<ProofsResult> proofsResultDataCompletableFuture = dkgClient.getProofsResult(HANDLER_ID);
+        ProofsResult proofsResult = proofsResultDataCompletableFuture.join();
 
         // then
-        assertThat(jsonNode).isNotNull();
-        assertThat(jsonNode.get("status").textValue()).isEqualTo("COMPLETED");
-        assertThat(jsonNode.get("data").size()).isEqualTo(1);
+        assertThat(proofsResult).isNotNull();
+        assertThat(proofsResult.getStatus()).isEqualTo("COMPLETED");
+        assertThat(proofsResult.getData().size()).isEqualTo(1);
 
         RecordedRequest request = mockWebServer.takeRequest();
         assertThat(request.getMethod()).isEqualTo("GET");

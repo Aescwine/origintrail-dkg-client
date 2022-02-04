@@ -2,6 +2,7 @@ package io.origintrail.dkg.client.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
  */
 @Builder
 @Getter
+@ToString
 public class EntitySearchOptions {
 
     private final String query;
