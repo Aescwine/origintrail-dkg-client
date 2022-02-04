@@ -78,7 +78,7 @@ class DkgClientTest {
     }
 
     @Test
-    void getNodeInfo_responseCannotBeSerialized_returnsNodeInformation() {
+    void getNodeInfo_responseCannotBeSerialized_throwCompletionException() {
         // given
         mockWebServer.enqueue(new MockResponse().setBody("{\n" +
                 "    \"version\": \"6.0.0-beta.1.20\",\n" +
