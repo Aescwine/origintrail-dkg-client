@@ -5,9 +5,7 @@ import io.origintrail.dkg.client.exception.UriCreationException;
 import io.origintrail.dkg.client.model.HttpUrlOptions;
 import org.apache.http.client.utils.URIBuilder;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +30,8 @@ public class UriUtil {
         public URI build() throws UriCreationException {
             try {
                 return uriBuilder.build().toURL().toURI();
-            } catch (MalformedURLException | URISyntaxException e) {
-                throw new UriCreationException("Exception occurred creating Uri", e);
+            } catch (Exception e) {
+                throw new UriCreationException("Exception occurred creating Uri.", e);
             }
         }
 

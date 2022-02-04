@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Represents the node information response from the DKG GET /info API endpoint.
+ */
 @Getter
 @Setter
 @ToString

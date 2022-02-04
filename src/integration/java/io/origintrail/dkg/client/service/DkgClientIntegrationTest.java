@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test class for testing the client integration a running DKG node
+ * Test class for testing the client integration with a running DKG node
  */
 public class DkgClientIntegrationTest {
 

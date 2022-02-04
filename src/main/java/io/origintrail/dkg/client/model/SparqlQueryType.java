@@ -2,6 +2,9 @@ package io.origintrail.dkg.client.model;
 
 import lombok.Getter;
 
+/**
+ * Accepted SPARQL query types
+ */
 @Getter
 public enum SparqlQueryType {
     CONSTRUCT("construct");

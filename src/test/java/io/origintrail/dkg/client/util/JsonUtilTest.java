@@ -36,7 +36,6 @@ class JsonUtilTest {
 
         // then
         assertThat(isValid).isTrue();
-
     }
 
     @Test

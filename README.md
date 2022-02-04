@@ -7,7 +7,7 @@ An asynchronous Java library, providing an interface into the OriginTrail Decent
 - verifying the integrity of queried data
 - exporting of datasets in different formats 
 
-**Compatible with DKG version**: *6.0.0-beta.1.20* 
+**Compatible with DKG version**: *6.0.0-beta.1.20* - https://github.com/OriginTrail/ot-node
 
 # Disclaimer
 
