@@ -219,7 +219,7 @@ public class DkgClientIntegrationTest {
         // SPARQL query result
         QueryResult sparqlQueryResult = sparqlQueryResult(sparqlQueryHandlerId);
         assertThat(sparqlQueryResult.getStatus()).isEqualTo(COMPLETED);
-        assertThat(sparqlQueryResult.getData().size()).isEqualTo(3);
+        assertThat(sparqlQueryResult.getData().size()).isEqualTo(2);
         LOGGER.info("SPARQL query result received");
 
 

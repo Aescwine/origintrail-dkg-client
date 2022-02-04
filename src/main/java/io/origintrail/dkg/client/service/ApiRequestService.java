@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 /**
- * Abstract class containing common methods for sending and managing HTTP requests to the DKG.
+ * Class containing common methods for sending and managing HTTP requests to the DKG.
  */
 @Getter
 public class ApiRequestService {
@@ -93,9 +93,6 @@ public class ApiRequestService {
     @SuppressWarnings("unchecked")
     protected <T> T transformBody(String body, Class<T> contentClass) throws ResponseBodyException {
         try {
-            if (contentClass.isInstance(body)) {
-                return (T) body;
-            }
             return OBJECT_MAPPER.readValue(body, contentClass);
         } catch (JsonProcessingException e) {
             LOGGER.error("Exception parsing response body content: {}", e.getMessage());
