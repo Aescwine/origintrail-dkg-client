@@ -113,10 +113,10 @@ When expected process flow is interrupted, **DKGClient** takes the approach of t
 `CompletableFuture` objects throw exceptions of type `CompletionException`, which wrap the underlying cause, which can be accessed with `ex.getCause()`.
 
 Concrete exception types:
-- `ClientRequestException` - exception occurred preparing request.
+- `RequestValidationException` - exception occurred creating request.
+- `UriCreationException` - exception creating request Uri.
 - `HttpResponseException` - exception occurred processing HTTP response.
 - `ResponseBodyException` - exception parsing response body.
-- `UriCreationException` - exception creating request Uri.
 - `UnexpectedException` - unexpected request/response processing exception.
 
 ## Logging Integration

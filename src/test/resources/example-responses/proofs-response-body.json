@@ -1,0 +1,15 @@
+{
+  "status": "COMPLETED",
+  "data": [
+    {
+      "assertionId": "5285f5da78edeaa9a7cb853ebd85121fae7d93191490d182490464668f2d21cc",
+      "proofs": [
+        {
+          "triple": "<did:dkg:5285f5da78edeaa9a7cb853ebd85121fae7d93191490d182490464668f2d21cc> <http://schema.org/hasKeyword> \"aKeyword\" .",
+          "tripleHash": "6041dab2f6e67ec4278c6f87f6c8ff7c245309d09d3a122a1d8c494a2ce0d1b2",
+          "proof": null
+        }
+      ]
+    }
+  ]
+}

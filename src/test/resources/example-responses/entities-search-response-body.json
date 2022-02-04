@@ -1,0 +1,100 @@
+{
+  "@context": {
+    "@vocab": "http://schema.org/",
+    "goog": "http://schema.googleapis.com/",
+    "resultScore": "goog:resultScore",
+    "detailedDescription": "goog:detailedDescription",
+    "EntitySearchResult": "goog:EntitySearchResult",
+    "kg": "http://g.co/kg"
+  },
+  "@type": "ItemList",
+  "itemListElement": [
+    {
+      "@type": "EntitySearchResult",
+      "result": {
+        "@id": "0ba6ee0852f653c450dccc94feb37a506d5f0ef8a7f540165793c31c2ec17d99",
+        "@type": "PRODUCT",
+        "@context": "https://www.schema.org/",
+        "@graph": [
+          {
+            "type": "Product",
+            "aggregateRating": {
+              "id": "_:b1",
+              "type": "AggregateRating",
+              "ratingValue": "4.4",
+              "reviewCount": "89"
+            },
+            "brand": {
+              "id": "_:b2",
+              "type": "Thing",
+              "name": "ACME"
+            },
+            "description": "Sleeker than ACME's Classic Anvil, the Executive Anvil is perfect for the business traveler looking for something to drop from a height.",
+            "image": "http://www.example.com/anvil_executive.jpg",
+            "mpn": "925872",
+            "name": "Executive Anvil",
+            "offers": {
+              "id": "_:b3",
+              "type": "Offer",
+              "availability": "http://schema.org/InStock",
+              "itemCondition": "http://schema.org/UsedCondition",
+              "price": "119.99",
+              "priceCurrency": "USD",
+              "priceValidUntil": "2020-11-05",
+              "seller": {
+                "id": "_:b4",
+                "type": "Organization",
+                "name": "Executive Objects"
+              }
+            }
+          },
+          {
+            "id": "_:b1",
+            "type": "AggregateRating",
+            "ratingValue": "4.4",
+            "reviewCount": "89"
+          },
+          {
+            "id": "_:b2",
+            "type": "Thing",
+            "name": "ACME"
+          },
+          {
+            "id": "_:b3",
+            "type": "Offer",
+            "availability": "http://schema.org/InStock",
+            "itemCondition": "http://schema.org/UsedCondition",
+            "price": "119.99",
+            "priceCurrency": "USD",
+            "priceValidUntil": "2020-11-05",
+            "seller": {
+              "id": "_:b4",
+              "type": "Organization",
+              "name": "Executive Objects"
+            }
+          },
+          {
+            "id": "_:b4",
+            "type": "Organization",
+            "name": "Executive Objects"
+          }
+        ]
+      },
+      "issuers": [
+        "0x31c98399d3d162fc9bfbfe25c3fc1e41d19ed711"
+      ],
+      "assertions": [
+        "5285f5da78edeaa9a7cb853ebd85121fae7d93191490d182490464668f2d21cc",
+        "881061eedb794178d7a5bb7a8e7d43de324b2ceee98c3f24097cb0a64da647b2",
+        "74001d8da754467ebd785d12e8aed495cf7dec91d4006eff3daf164dc0be4bec",
+        "5ad35dac1e2d1cf56212c4eec02cb07c2cb207e411188f8efc802a78de2e092c",
+        "797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99",
+        "e581fecb0dc863f9c76800ae5ee9b7a2d65895526285e4b66e43f261ddc8d4c9"
+      ],
+      "nodes": [
+        "QmQcY1XgxvSALM8bRupeoVnRHVFv1FBPGrntY97X9w49oC"
+      ],
+      "resultScore": 0
+    }
+  ]
+}

@@ -11,6 +11,7 @@ import io.origintrail.dkg.client.http.MultiPartBody;
 import io.origintrail.dkg.client.model.HttpUrlOptions;
 import lombok.Getter;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -18,24 +19,25 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 /**
  * Abstract class containing common methods for sending and managing HTTP requests to the DKG.
  */
 @Getter
-class ApiRequestService {
+public class ApiRequestService {
 
-    static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiRequestService.class);
+
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(10);
     private final HttpClient httpClient;
     private final HttpUrlOptions httpUrlOptions;
-    private final Logger logger;
 
-    public ApiRequestService(HttpClient httpClient, HttpUrlOptions httpUrlOptions, Logger logger) {
+    public ApiRequestService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
         this.httpClient = httpClient;
         this.httpUrlOptions = httpUrlOptions;
-        this.logger = logger;
     }
 
     HttpRequest createHttpGETRequest(URI uri) {
@@ -65,22 +67,22 @@ class ApiRequestService {
     }
 
     public CompletableFuture<String> sendAsyncRequest(HttpRequest request)
-            throws UnexpectedException, HttpResponseException {
+            throws CompletionException {
 
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(r -> {
                     if (!isSuccessResponse(r)) {
-                        logger.warn("Unsuccessful response status: {}, {}", r.statusCode(), r.body());
+                        LOGGER.warn("Unsuccessful response status: {}, {}", r.statusCode(), r.body());
                         throw new HttpResponseException(r.statusCode(), r.body());
                     }
                     return r.body();
                 })
                 .exceptionally(ex -> {
                     if (ex.getCause() instanceof DkgClientException) {
-                        throw (DkgClientException) ex.getCause();
+                        throw new CompletionException(ex.getCause());
                     }
-                    logger.error("Unexpected error sending http request: {}", ex.getMessage());
-                    throw new UnexpectedException(ex.getMessage(), ex.getCause());
+                    LOGGER.error("Unexpected error sending http request: {}", ex.getMessage());
+                    throw new CompletionException(new UnexpectedException(ex.getMessage(), ex.getCause()));
                 });
     }
 
@@ -89,14 +91,14 @@ class ApiRequestService {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> T transformBody(String body, Class<T> contentClass) throws UnexpectedException {
+    protected <T> T transformBody(String body, Class<T> contentClass) throws ResponseBodyException {
         try {
             if (contentClass.isInstance(body)) {
                 return (T) body;
             }
             return OBJECT_MAPPER.readValue(body, contentClass);
         } catch (JsonProcessingException e) {
-            logger.error("Exception parsing response body content: {}", e.getMessage());
+            LOGGER.error("Exception parsing response body content: {}", e.getMessage());
             throw new ResponseBodyException("Exception parsing response body content.", e.getCause());
         }
     }

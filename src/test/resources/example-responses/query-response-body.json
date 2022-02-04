@@ -1,0 +1,23 @@
+{
+  "status": "COMPLETED",
+  "data": [
+    "<did:dkg:5285f5da78edeaa9a7cb853ebd85121fae7d93191490d182490464668f2d21cc> <http://schema.org/hasKeyword> \"Product\" .",
+    "<did:dkg:5285f5da78edeaa9a7cb853ebd85121fae7d93191490d182490464668f2d21cc> <http://schema.org/hasKeyword> \"randomasset\" .",
+    "<did:dkg:5285f5da78edeaa9a7cb853ebd85121fae7d93191490d182490464668f2d21cc> <http://schema.org/hasKeyword> \"randomkeyword\" .",
+    "<did:dkg:881061eedb794178d7a5bb7a8e7d43de324b2ceee98c3f24097cb0a64da647b2> <http://schema.org/hasKeyword> \"Product\" .",
+    "<did:dkg:881061eedb794178d7a5bb7a8e7d43de324b2ceee98c3f24097cb0a64da647b2> <http://schema.org/hasKeyword> \"randomasset\" .",
+    "<did:dkg:881061eedb794178d7a5bb7a8e7d43de324b2ceee98c3f24097cb0a64da647b2> <http://schema.org/hasKeyword> \"randomkeyword\" .",
+    "<did:dkg:74001d8da754467ebd785d12e8aed495cf7dec91d4006eff3daf164dc0be4bec> <http://schema.org/hasKeyword> \"Product\" .",
+    "<did:dkg:74001d8da754467ebd785d12e8aed495cf7dec91d4006eff3daf164dc0be4bec> <http://schema.org/hasKeyword> \"randomasset\" .",
+    "<did:dkg:74001d8da754467ebd785d12e8aed495cf7dec91d4006eff3daf164dc0be4bec> <http://schema.org/hasKeyword> \"randomkeyword\" .",
+    "<did:dkg:5ad35dac1e2d1cf56212c4eec02cb07c2cb207e411188f8efc802a78de2e092c> <http://schema.org/hasKeyword> \"Product\" .",
+    "<did:dkg:5ad35dac1e2d1cf56212c4eec02cb07c2cb207e411188f8efc802a78de2e092c> <http://schema.org/hasKeyword> \"randomasset\" .",
+    "<did:dkg:5ad35dac1e2d1cf56212c4eec02cb07c2cb207e411188f8efc802a78de2e092c> <http://schema.org/hasKeyword> \"randomkeyword\" .",
+    "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasKeyword> \"Product\" .",
+    "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasKeyword> \"randomasset\" .",
+    "<did:dkg:797e375dd9c38b05f96803acf5666538139310346aeb8f162abe4e0d4d0dff99> <http://schema.org/hasKeyword> \"randomkeyword\" .",
+    "<did:dkg:e581fecb0dc863f9c76800ae5ee9b7a2d65895526285e4b66e43f261ddc8d4c9> <http://schema.org/hasKeyword> \"Product\" .",
+    "<did:dkg:e581fecb0dc863f9c76800ae5ee9b7a2d65895526285e4b66e43f261ddc8d4c9> <http://schema.org/hasKeyword> \"randomasset\" .",
+    "<did:dkg:e581fecb0dc863f9c76800ae5ee9b7a2d65895526285e4b66e43f261ddc8d4c9> <http://schema.org/hasKeyword> \"randomkeyword\" ."
+  ]
+}

@@ -1,47 +1,42 @@
 package io.origintrail.dkg.client.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.origintrail.dkg.client.exception.ClientRequestException;
-import io.origintrail.dkg.client.exception.HttpResponseException;
-import io.origintrail.dkg.client.exception.UnexpectedException;
+import io.origintrail.dkg.client.exception.RequestValidationException;
 import io.origintrail.dkg.client.http.HttpMediaType;
 import io.origintrail.dkg.client.http.MultiPartBody;
 import io.origintrail.dkg.client.model.HandlerId;
-import io.origintrail.dkg.client.model.HttpUrlOptions;
 import io.origintrail.dkg.client.model.MultiPartData;
 import io.origintrail.dkg.client.model.PublishOptions;
 import io.origintrail.dkg.client.util.JsonUtil;
 import io.origintrail.dkg.client.util.UriUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import static java.lang.String.format;
 
-public class PublishService extends ApiRequestService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PublishService.class);
+public class PublishService {
 
     private static final String PUBLISH_PATH = "publish";
     private static final String PUBLISH_RESULT_PATH = "publish/result";
 
-    public PublishService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
-        super(httpClient, httpUrlOptions, LOGGER);
+    private final ApiRequestService apiRequestService;
+
+    public PublishService(ApiRequestService apiRequestService) {
+        this.apiRequestService = apiRequestService;
     }
 
     public CompletableFuture<HandlerId> publish(String fileName, byte[] fileData, PublishOptions publishOptions)
-            throws ClientRequestException, HttpResponseException, UnexpectedException {
+            throws CompletionException, RequestValidationException {
 
         validateRequest(fileName, fileData, publishOptions);
 
-        URI uri = UriUtil.builder().httpUrlOptions(getHttpUrlOptions())
+        URI uri = UriUtil.builder().httpUrlOptions(apiRequestService.getHttpUrlOptions())
                 .path(PUBLISH_PATH)
                 .build();
 
@@ -56,31 +51,33 @@ public class PublishService extends ApiRequestService {
             bodyPublisher.addPart("keywords", publishOptions.getKeywords());
         }
 
-        HttpRequest request = createMultiPartFormRequest(uri, bodyPublisher);
-        return sendAsyncRequest(request).thenApply(body -> transformBody(body, HandlerId.class));
+        HttpRequest request = apiRequestService.createMultiPartFormRequest(uri, bodyPublisher);
+        return apiRequestService.sendAsyncRequest(request)
+                .thenApply(body -> apiRequestService.transformBody(body, HandlerId.class));
     }
 
     private void validateRequest(String fileName, byte[] fileData, PublishOptions publishOptions) {
         String fileExtension = FilenameUtils.getExtension(fileName);
         if (!fileExtension.equals("json")) {
-            throw new ClientRequestException(format("File extension not supported: %s", fileExtension));
+            throw new RequestValidationException(format("File extension not supported: %s", fileExtension));
         }
 
         if (!JsonUtil.isJsonValid(fileData)) {
-            throw new ClientRequestException("Publish data is not valid JSON");
+            throw new RequestValidationException("Publish data is not valid JSON");
         }
 
         if (publishOptions == null) {
-            throw new ClientRequestException("Publish options cannot be null");
+            throw new RequestValidationException("Publish options cannot be null");
         }
     }
 
-    public CompletableFuture<JsonNode> getPublishResult(String handlerId) throws HttpResponseException, UnexpectedException {
-        URI uri = UriUtil.builder().httpUrlOptions(getHttpUrlOptions())
+    public CompletableFuture<JsonNode> getPublishResult(String handlerId) throws CompletionException {
+        URI uri = UriUtil.builder().httpUrlOptions(apiRequestService.getHttpUrlOptions())
                 .pathSegments(List.of(PUBLISH_RESULT_PATH, handlerId))
                 .build();
 
-        HttpRequest request = createHttpGETRequest(uri);
-        return sendAsyncRequest(request).thenApply(body -> transformBody(body, JsonNode.class));
+        HttpRequest request = apiRequestService.createHttpGETRequest(uri);
+        return apiRequestService.sendAsyncRequest(request)
+                .thenApply(body -> apiRequestService.transformBody(body, JsonNode.class));
     }
 }

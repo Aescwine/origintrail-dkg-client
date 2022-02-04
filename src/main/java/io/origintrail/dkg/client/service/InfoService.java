@@ -1,36 +1,32 @@
 package io.origintrail.dkg.client.service;
 
-import io.origintrail.dkg.client.exception.HttpResponseException;
-import io.origintrail.dkg.client.exception.UnexpectedException;
-import io.origintrail.dkg.client.model.HttpUrlOptions;
 import io.origintrail.dkg.client.model.NodeInfo;
 import io.origintrail.dkg.client.util.UriUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
-public class InfoService extends ApiRequestService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(InfoService.class);
+public class InfoService{
 
     private static final String INFO_PATH = "info";
 
-    public InfoService(HttpClient httpClient, HttpUrlOptions httpUrlOptions) {
-        super(httpClient, httpUrlOptions, LOGGER);
+    private final ApiRequestService apiRequestService;
+
+    public InfoService(ApiRequestService apiRequestService) {
+        this.apiRequestService = apiRequestService;
     }
 
-    public CompletableFuture<NodeInfo> getInfo() throws HttpResponseException, UnexpectedException {
+    public CompletableFuture<NodeInfo> getNodeInfo() throws CompletionException {
 
-        URI uri = UriUtil.builder().httpUrlOptions(getHttpUrlOptions())
+        URI uri = UriUtil.builder()
+                .httpUrlOptions(apiRequestService.getHttpUrlOptions())
                 .path(INFO_PATH)
                 .build();
 
-        HttpRequest request = createHttpGETRequest(uri);
-        return sendAsyncRequest(request)
-                .thenApply(body -> transformBody(body, NodeInfo.class));
+        HttpRequest request = apiRequestService.createHttpGETRequest(uri);
+        return apiRequestService.sendAsyncRequest(request)
+                .thenApply(body -> apiRequestService.transformBody(body, NodeInfo.class));
     }
 }
