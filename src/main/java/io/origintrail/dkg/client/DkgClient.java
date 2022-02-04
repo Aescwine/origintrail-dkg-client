@@ -184,13 +184,13 @@ public class DkgClient {
      *
      * @param entitySearchOptions {@link EntitySearchOptions} containing query parameters required for search.
      * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the DKG entities search.
-     * @throws RequestValidationException if {@code EntitySearchOptions} is not valid. Either the {@code query} or {@code ids} parameter is required.
      * @throws CompletionException        if the call to the DKG API returns an error status code,
      *                                    or if the response body is not in the expected format,
      *                                    or if an unexpected exception occurs during processing of the request/response.
+     * @throws RequestValidationException if {@code EntitySearchOptions} is not valid. Either the {@code query} or {@code ids} parameter is required.
      */
     public CompletableFuture<HandlerId> entitiesSearch(EntitySearchOptions entitySearchOptions)
-            throws CompletionException {
+            throws CompletionException, RequestValidationException {
         return searchService.entitiesSearch(entitySearchOptions);
     }
 
