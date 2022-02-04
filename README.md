@@ -1,4 +1,4 @@
-# DKG API - Java library
+# Java DKG API client
 
 An asynchronous Java library, providing an interface into the OriginTrail Decentralized Knowledge Graph, enabling:
 
@@ -33,21 +33,27 @@ mvn clean install
 
 ### Unit tests
 
-Execute all unit tests with the maven command: `mvn test`
+Execute all unit tests with the maven command: 
+```
+mvn test
+```
 
 ### Integration tests
 
-`DkgApiIntegrationTest` contains the DKG API integration tests, including an end to end flow, covering all API endpoints. <p/>To run integration tests locally, run `mvn integration-test`
+`DkgClientIntegrationTest` contains the DKG API integration tests, including an end to end flow, covering all API endpoints. <p/>Run integration tests locally:  
+```
+mvn integration-test
+```
 
 Note: update the host and port to your local node if required
 
-## Usage
+# Usage
 
-The **DKGClient** library is asynchronous, using `java.net.http.HttpClient` for HTTP requests. 
+The Java DKG client library is asynchronous, using `java.net.http.HttpClient` for HTTP requests. 
 
 API responses are wrapped in a **CompletableFuture** containing the result of the API request, to facilitate non-blocking logic within your code.
 
-If using Spring Boot/Reactor Core, create a **Mono** from **CompletableFuture**:
+If using Spring Boot/Reactor Core, you can create a **Mono** from **CompletableFuture** if necessary:
 ```java
 Mono monoResult = reactor.core.publisher.Mono.fromFuture(result);
 ```
@@ -59,65 +65,90 @@ CompletableFuture<HandlerId> publishHandlerId = dkgClient.publish(fileName, file
 HandlerId handler = publishHandlerId.join() // block and wait for result
 ```
 
-### DkgClient
+### API response objects
+
+Where possible, model classes have been created to map an API response to Java objects, allowing for easier handling of the result data.<p/> In instances where the response data is dynamic or unknown, `JsonNode` objects are used to represent the JSON response data.
+
+### Exception Handling
+
+When expected process flow is interrupted, **DKGClient** takes the approach of throwing unchecked exceptions of abstract type `DkgClientException`, rather than propagating exceptions up the stack.
+
+Any exceptions thrown during `CompletableFuture` completion, are wrapped within exceptions of type `CompletionException`, which can be accessed with `ex.getCause()`.
+
+#### DKG Client exception types:
+
+- `RequestValidationException` - exception occurred creating request.
+- `UriCreationException` - exception creating request Uri.
+- `HttpResponseException` - unsuccessful HTTP response status.
+    - Includes access to the response **statusCode**, and a **reasonPhrase** (taken from the response body).
+- `ResponseBodyException` - exception parsing response body.
+- `UnexpectedException` - unexpected request/response processing exception.
+
+## Creating a DkgClient
 
 The class `DkgClient` is the entrypoint for executing requests against the Decentralized Knowledge Graph.
 
+To open a connection to a node and start querying, simply create an instance of the `DkgClient`:
+
 ```java
-// create instance of DkgClient
 DkgClient dkgClient = new DkgClient();
+
 // or create with a HOST and PORT if different from the default of localhost and 8900.
 DkgClient dkgClient = new DkgClient(HOST, PORT);
 ```
-#### Get node info
-```
-CompletableFuture<NodeInfo> result = dkgClient.info();
-```
-Example response object:
-```json
-{
-    "version": "6.0.0-beta.1.20",
-    "auto_update": false,
-    "telemetry": true
-}
+
+### Using the client
+
+#### Get node information
+```java
+CompletableFuture<NodeInfo> nodeInfo = dkgClient.info();
 ```
 
-#### Publish assertion
-```
+#### Publish an assertion
+```java
 // if you have the assertion JSON byte array:
-CompletableFuture<HandlerId> publishHandlerId = dkgClient.publish(fileName, fileData, publishOptions);
-// or if you want to publish from a file path:
-CompletableFuture<HandlerId> publishHandlerId = dkgClient.publish(filePath, publishOptions);
+CompletableFuture<HandlerId> handlerId = dkgClient.publish(fileName, fileData, publishOptions);
 
-```
-Example response object:
-```json
-{
-  "handler_id": "ffd8a00e-bf22-4432-8d88-804f4f9baa27"
-}
-```
+// or if you want to publish from a file path
+String filePath = "/root/some-assertion-file.json";
+CompletableFuture<HandlerId> handlerId = dkgClient.publish(filePath, publishOptions);
 
-#### Retrieve published assertion
-```
-CompletableFuture<JsonNode> publishResult = dkgClient.getPublishResult(publishHandlerId.getHandlerId());
+---
+// get the publish result  
+CompletableFuture<PublishResult> publishResult = dkgClient.getPublishResult(handlerId.getHandlerId());
+
 // retrieve assertion id when future completes
-publishResult.thenApply(r -> r.path("data").path("id").asText());
+publishResult.thenApply(result -> result.getData().getId());
+```
+
+#### Resolve an assertion
+```java
+// takes a List<String> of assertion ids to resolve
+CompletableFuture<HandlerId> handlerId = dkgClient.resolve(Collections.singletonList(assertionId));
+
+// get result
+CompletableFuture<ResolveResult> resolveResult = dkgClient.getResolveResult(handlerId.getHandlerId());
 ```
 
 **More examples TBC**
 
-## Exception Handling
+### How to process a `CompletableFuture` response object
 
-When expected process flow is interrupted, **DKGClient** takes the approach of throwing unchecked exceptions of abstract type `DkgClientException`, rather than propagating exceptions up the stack.
+One approach to processing a `CompletableFuture` on completion, would be to utilise the `CompletableFuture<U> handle` method. This gives you access to the result and potential exception of the current completable future. You can then transform the result or handle the exception as required.
 
-`CompletableFuture` objects throw exceptions of type `CompletionException`, which wrap the underlying cause, which can be accessed with `ex.getCause()`.
+For example, the below code will return the `id` of the returned publish result, or send the exception message to the system output stream.
 
-Concrete exception types:
-- `RequestValidationException` - exception occurred creating request.
-- `UriCreationException` - exception creating request Uri.
-- `HttpResponseException` - exception occurred processing HTTP response.
-- `ResponseBodyException` - exception parsing response body.
-- `UnexpectedException` - unexpected request/response processing exception.
+```
+dkgClient.getPublishResult(handlerId.getHandlerId())
+    .handle((result, ex) -> {
+        if (ex != null) {
+            System.out.println(ex.getMessage);
+        } else {
+            return result.getData().getId();
+        }
+    }
+);
+```
 
 ## Logging Integration
 
