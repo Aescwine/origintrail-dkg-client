@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,8 +26,8 @@ class PublishServiceTest {
     private final String assertionFileName = "assertion-example.json";
     private final byte[] fileData = getFileData();
     private final PublishOptions publishOptions = PublishOptions
-            .builder("[\"test_asset\"]")
-            .keywords("[\"test_keyword\"]").build();
+            .builder(Collections.singletonList("[\"test_keyword\"]"))
+            .build();
 
     @Mock
     private ApiRequestService apiRequestService;

@@ -2,6 +2,7 @@ package io.origintrail.dkg.client.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.origintrail.dkg.client.exception.DkgClientException;
 import io.origintrail.dkg.client.exception.HttpResponseException;
 import io.origintrail.dkg.client.exception.ResponseBodyException;
@@ -29,7 +30,7 @@ public class ApiRequestService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiRequestService.class);
 
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 
     private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(10);
     private final HttpClient httpClient;
@@ -68,7 +69,7 @@ public class ApiRequestService {
 
     public CompletableFuture<String> sendAsyncRequest(HttpRequest request)
             throws CompletionException {
-
+        LOGGER.debug("Sending async request: {}", request.uri().toString());
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(r -> {
                     if (!isSuccessResponse(r)) {

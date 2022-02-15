@@ -2,93 +2,58 @@
   "status": "COMPLETED",
   "data": [
     {
-      "74001d8da754467ebd785d12e8aed495cf7dec91d4006eff3daf164dc0be4bec": {
+      "type": "assertion",
+      "id": "d4a9bd3c6b326d25ecf30151629cf55d96180d86534ea8492ab3013b9bc4e7e3",
+      "assertion": {
         "metadata": {
-          "dataHash": "ed13153fa4090eceedf6c1dd1aa030ec45ab75c2f9510c64a2014f1c6424e7dd",
+          "UALs": [
+            "f652cb5d2563794dad9c9edbacfcbdd34323187885b937547402c01ef92573bc"
+          ],
+          "dataHash": "a96c99f83c685814414164a819617ca1955325958ced24e20a1d2925ad9c89ef",
           "issuer": "0x31c98399d3d162fc9bfbfe25c3fc1e41d19ed711",
-          "timestamp": "2022-02-01T13:15:21.293Z",
-          "type": "Product",
-          "visibility": true
+          "keywords": [
+            "1234test3"
+          ],
+          "timestamp": "2022-02-15T21:28:25.996Z",
+          "type": "Person",
+          "visibility": "public"
         },
         "blockchain": {
           "name": "polygon::testnet",
-          "transactionHash": "0xdeae16e237bbf84eb93ba7b8fecabd77b16ca663eaab8060e434f1b9ecfea827"
+          "transactionHash": "0x30f628896f8d76dc22c4401199b6afb6bd160e1fe0f9c122e81873e6efa78e37"
         },
-        "assets": [
-          "0ba6ee0852f653c450dccc94feb37a506d5f0ef8a7f540165793c31c2ec17d99"
-        ],
-        "keywords": [
-          "Product",
-          "randomasset",
-          "randomkeyword"
-        ],
-        "signature": "0x3a1302f75d679bcfe1c655bf0734023f98cb03b4494e57761024e8d7ec341fce1bb7aea56d2268ea4484d2d042ce169dfa777409cd708219a2cbc59f9e8ccc291b",
-        "rootHash": "d7c94e38c4ee0ed8f51e84dd533848c1150776246a99ac9d317ab36d1d06e5ea",
-        "id": "74001d8da754467ebd785d12e8aed495cf7dec91d4006eff3daf164dc0be4bec",
+        "signature": "0x219439d20cc91ff320db5c39f4f6d0d7c0423e2905c37e7216233c89938b13ac7048f5f642566d68c8b2f03e32abd366b9c2865eead05d6b0a07903d7342f4411c",
+        "id": "d4a9bd3c6b326d25ecf30151629cf55d96180d86534ea8492ab3013b9bc4e7e3",
         "data": {
           "@context": "https://www.schema.org/",
           "@graph": [
             {
-              "aggregateRating": {
+              "address": {
+                "addressLocality": "Seattle",
+                "addressRegion": "WA",
                 "id": "_:b1",
-                "ratingValue": "4.4",
-                "reviewCount": "89",
-                "type": "AggregateRating"
+                "postalCode": "98052",
+                "streetAddress": "20341 Whitworth Institute 405 N. Whitworth",
+                "type": "PostalAddress"
               },
-              "brand": {
-                "id": "_:b2",
-                "name": "ACME",
-                "type": "Thing"
-              },
-              "description": "Sleeker than ACME's Classic Anvil, the Executive Anvil is perfect for the business traveler looking for something to drop from a height.",
-              "image": "http://www.example.com/anvil_executive.jpg",
-              "mpn": "925872",
-              "name": "Executive Anvil",
-              "offers": {
-                "availability": "http://schema.org/InStock",
-                "id": "_:b3",
-                "itemCondition": "http://schema.org/UsedCondition",
-                "price": "119.99",
-                "priceCurrency": "USD",
-                "priceValidUntil": "2020-11-05",
-                "seller": {
-                  "id": "_:b4",
-                  "name": "Executive Objects",
-                  "type": "Organization"
-                },
-                "type": "Offer"
-              },
-              "type": "Product"
+              "colleague": [
+                "http://www.xyz.edu/students/alicejones.html",
+                "http://www.xyz.edu/students/bobsmith.html"
+              ],
+              "email": "mailto:jane-doe@xyz.edu",
+              "jobTitle": "Professor",
+              "name": "Jane Doe",
+              "telephone": "(425) 123-4567",
+              "type": "Person",
+              "url": "http://www.janedoe.com"
             },
             {
+              "addressLocality": "Seattle",
+              "addressRegion": "WA",
               "id": "_:b1",
-              "ratingValue": "4.4",
-              "reviewCount": "89",
-              "type": "AggregateRating"
-            },
-            {
-              "id": "_:b2",
-              "name": "ACME",
-              "type": "Thing"
-            },
-            {
-              "availability": "http://schema.org/InStock",
-              "id": "_:b3",
-              "itemCondition": "http://schema.org/UsedCondition",
-              "price": "119.99",
-              "priceCurrency": "USD",
-              "priceValidUntil": "2020-11-05",
-              "seller": {
-                "id": "_:b4",
-                "name": "Executive Objects",
-                "type": "Organization"
-              },
-              "type": "Offer"
-            },
-            {
-              "id": "_:b4",
-              "name": "Executive Objects",
-              "type": "Organization"
+              "postalCode": "98052",
+              "streetAddress": "20341 Whitworth Institute 405 N. Whitworth",
+              "type": "PostalAddress"
             }
           ]
         }

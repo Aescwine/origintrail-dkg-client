@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -38,7 +37,7 @@ public class DkgClientIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DkgClientIntegrationTest.class);
 
-    private static final String HOST = "172.17.119.10"; // your local node instance
+    private static final String HOST = "localhost"; // your local node instance
     private static final int PORT = 8900;
 
     private static final String HANDLER_ID_REGEX = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
@@ -59,121 +58,148 @@ public class DkgClientIntegrationTest {
     }
 
     @Test
-    void proofs_multipleAssertions_resultContainsDataForTwoAssertions() throws IOException, InterruptedException {
+    void publish_publishAndResolveAssertion_resolveResultTypeIsAssertion() throws IOException, InterruptedException {
         String randomKeywordForTest = "keyword" + UUID.randomUUID().toString().substring(0, 5);
-        String randomAssetForTest = "asset" + UUID.randomUUID().toString().substring(0, 5);
-
-        // publish assertions
-        HandlerId publishHandlerId1 = publishAssertion(randomKeywordForTest, randomAssetForTest);
-        assertThat(publishHandlerId1.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
-
-        // sleep for 5 seconds to allow publish to complete
-        Thread.sleep(5000);
-
-        HandlerId publishHandlerId2 = publishAssertion(randomKeywordForTest, randomAssetForTest);
-        assertThat(publishHandlerId2.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
-
-        // sleep for 10 seconds to allow publish to complete
-        Thread.sleep(10000);
-
-        // get publish results
-        PublishResult publishedAssertion1 = getPublishResult(publishHandlerId1);
-        assertThat(publishedAssertion1.getStatus()).isEqualTo(COMPLETED);
-        String assertionId1 = publishedAssertion1.getData().getId();
-
-        PublishResult publishedAssertion2 = getPublishResult(publishHandlerId2);
-        assertThat(publishedAssertion2.getStatus()).isEqualTo(COMPLETED);
-        String assertionId2 = publishedAssertion2.getData().getId();
-
-
-        // get proofs
-        HandlerId proofsQueryHandlerId = proofsQuery(randomKeywordForTest, Arrays.asList(assertionId1, assertionId2));
-        assertThat(proofsQueryHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
-        LOGGER.info("Proofs query sent");
-
-        // sleep for 5 second to allow proofs query to complete
-        Thread.sleep(5000);
-
-        // get proofs result - should contain proofs for two assertions
-        ProofsResult proofsResult = proofsQueryResult(proofsQueryHandlerId);
-        assertThat(proofsResult.getStatus()).isEqualTo(COMPLETED);
-        assertThat(proofsResult.getData().size()).isEqualTo(2);
-    }
-
-    @Test
-    void resolve_multipleAssertions_resultContainsDataForTwoAssertions() throws IOException, InterruptedException {
-        String randomKeywordForTest = "keyword" + UUID.randomUUID().toString().substring(0, 5);
-        String randomAssetForTest = "asset" + UUID.randomUUID().toString().substring(0, 5);
-
-        // publish assertions
-        HandlerId publishHandlerId1 = publishAssertion(randomKeywordForTest, randomAssetForTest);
-        assertThat(publishHandlerId1.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
-
-        // sleep for 5 seconds to allow publish to complete
-        Thread.sleep(5000);
-
-        HandlerId publishHandlerId2 = publishAssertion(randomKeywordForTest, randomAssetForTest);
-        assertThat(publishHandlerId2.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
-
-        // sleep for 10 seconds to allow publish to complete
-        Thread.sleep(10000);
-
-        // get publish results
-        PublishResult publishedAssertion1 = getPublishResult(publishHandlerId1);
-        assertThat(publishedAssertion1.getStatus()).isEqualTo(COMPLETED);
-        String assertionId1 = publishedAssertion1.getData().getId();
-
-        PublishResult publishedAssertion2 = getPublishResult(publishHandlerId2);
-        assertThat(publishedAssertion2.getStatus()).isEqualTo(COMPLETED);
-        String assertionId2 = publishedAssertion2.getData().getId();
-
-
-        // resolve assertions
-        HandlerId resolveHandlerId = resolveAssertions(Arrays.asList(assertionId1, assertionId2));
-        assertThat(resolveHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
-
-        // sleep for 3 seconds to allow resolve to complete
-        Thread.sleep(3000);
-
-        // get resolve result - should contain two resolved assertions
-        ResolveResult resolvedAssertion = getResolveResult(resolveHandlerId);
-        assertThat(resolvedAssertion.getStatus()).isEqualTo(COMPLETED);
-        assertThat(resolvedAssertion.getData().size()).isEqualTo(2);
-    }
-
-    @Test
-    void end_to_end_integration_test() throws IOException, InterruptedException {
-        String randomKeywordForTest = "keyword" + UUID.randomUUID().toString().substring(0, 5);
-        String randomAssetForTest = "asset" + UUID.randomUUID().toString().substring(0, 5);
 
         // publish assertion
-        HandlerId publishHandlerId = publishAssertion(randomKeywordForTest, randomAssetForTest);
-
+        HandlerId publishHandlerId = publishAssertion(randomKeywordForTest);
         assertThat(publishHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
-        LOGGER.info("Assertion published");
 
-        // sleep for 10 seconds to allow publish to complete
+        // sleep for 10 seconds to allow provision to complete
         Thread.sleep(10000);
 
-        // get publish result
-        PublishResult publishedAssertion = getPublishResult(publishHandlerId);
+        // get published assertion
+        PublishResult publishedAssertion = getProvisionResult(publishHandlerId);
         assertThat(publishedAssertion.getStatus()).isEqualTo(COMPLETED);
-        String assertionId = publishedAssertion.getData().getId();
-        LOGGER.info("Assertion received");
-
+        String id = publishedAssertion.getData().getId();
 
         // resolve assertion
-        HandlerId resolveHandlerId = resolveAssertion(assertionId);
+        HandlerId resolveHandlerId = resolveAssertion(id);
         assertThat(resolveHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
-        LOGGER.info("Assertion resolved");
 
         // sleep for 3 seconds to allow resolve to complete
         Thread.sleep(3000);
 
-        // get resolve result
+        // get resolved asset
         ResolveResult resolvedAssertion = getResolveResult(resolveHandlerId);
         assertThat(resolvedAssertion.getStatus()).isEqualTo(COMPLETED);
-        LOGGER.info("Assertion resolve result received");
+        assertThat(resolvedAssertion.getData().get(0).getType()).isEqualTo("assertion");
+    }
+
+//    @Test
+//    void proofs_multipleAssertions_resultContainsDataForTwoAssertions() throws IOException, InterruptedException {
+//        String randomKeywordForTest = "keyword" + UUID.randomUUID().toString().substring(0, 5);
+//
+//        // publish assertions
+//        HandlerId publishHandlerId1 = publishAssertion(randomKeywordForTest);
+//        assertThat(publishHandlerId1.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
+//
+//        // sleep for 5 seconds to allow publish to complete
+//        Thread.sleep(5000);
+//
+//        HandlerId publishHandlerId2 = publishAssertion(randomKeywordForTest);
+//        assertThat(publishHandlerId2.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
+//
+//        // sleep for 10 seconds to allow publish to complete
+//        Thread.sleep(10000);
+//
+//        // get publish results
+//        PublishResult publishedAssertion1 = getPublishResult(publishHandlerId1);
+//        assertThat(publishedAssertion1.getStatus()).isEqualTo(COMPLETED);
+//        String assertionId1 = publishedAssertion1.getData().getId();
+//
+//        PublishResult publishedAssertion2 = getPublishResult(publishHandlerId2);
+//        assertThat(publishedAssertion2.getStatus()).isEqualTo(COMPLETED);
+//        String assertionId2 = publishedAssertion2.getData().getId();
+//
+//
+//        // get proofs
+//        HandlerId proofsQueryHandlerId = proofsQuery(randomKeywordForTest, Arrays.asList(assertionId1, assertionId2));
+//        assertThat(proofsQueryHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
+//        LOGGER.info("Proofs query sent");
+//
+//        // sleep for 5 second to allow proofs query to complete
+//        Thread.sleep(5000);
+//
+//        // get proofs result - should contain proofs for two assertions
+//        ProofsResult proofsResult = proofsQueryResult(proofsQueryHandlerId);
+//        assertThat(proofsResult.getStatus()).isEqualTo(COMPLETED);
+//        assertThat(proofsResult.getData().size()).isEqualTo(2);
+//    }
+
+//    @Test
+//    void resolve_multipleAssertions_resultContainsDataForTwoAssertions() throws IOException, InterruptedException {
+//        String randomKeywordForTest = "keyword" + UUID.randomUUID().toString().substring(0, 5);
+//
+//        // publish assertions
+//        HandlerId publishHandlerId1 = publishAssertion(randomKeywordForTest);
+//        assertThat(publishHandlerId1.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
+//
+//        // sleep for 5 seconds to allow publish to complete
+//        Thread.sleep(5000);
+//
+//        HandlerId publishHandlerId2 = publishAssertion(randomKeywordForTest);
+//        assertThat(publishHandlerId2.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
+//
+//        // sleep for 10 seconds to allow publish to complete
+//        Thread.sleep(10000);
+//
+//        // get publish results
+//        PublishResult publishedAssertion1 = getPublishResult(publishHandlerId1);
+//        assertThat(publishedAssertion1.getStatus()).isEqualTo(COMPLETED);
+//        String assertionId1 = publishedAssertion1.getData().getId();
+//
+//        PublishResult publishedAssertion2 = getPublishResult(publishHandlerId2);
+//        assertThat(publishedAssertion2.getStatus()).isEqualTo(COMPLETED);
+//        String assertionId2 = publishedAssertion2.getData().getId();
+//
+//
+//        // resolve assertions
+//        HandlerId resolveHandlerId = resolveAssertions(Arrays.asList(assertionId1, assertionId2));
+//        assertThat(resolveHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
+//
+//        // sleep for 3 seconds to allow resolve to complete
+//        Thread.sleep(3000);
+//
+//        // get resolve result - should contain two resolved assertions
+//        ResolveResult resolvedAssertion = getResolveResult(resolveHandlerId);
+//        assertThat(resolvedAssertion.getStatus()).isEqualTo(COMPLETED);
+//        assertThat(resolvedAssertion.getData().size()).isEqualTo(2);
+//    }
+
+    @Test
+    void end_to_end_provision_asset_integration_test() throws IOException, InterruptedException {
+        String randomKeywordForTest = "keyword" + UUID.randomUUID().toString().substring(0, 5);
+
+        // provision asset
+        HandlerId provisionHandlerId = provisionAsset(randomKeywordForTest);
+
+        assertThat(provisionHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
+        LOGGER.info("Asset published");
+
+        // sleep for 10 seconds to allow provision to complete
+        Thread.sleep(10000);
+
+        // get provisioned asset
+        PublishResult provisionedAsset = getProvisionResult(provisionHandlerId);
+        assertThat(provisionedAsset.getStatus()).isEqualTo(COMPLETED);
+        String ual = provisionedAsset.getData().getMetadata().getUALs().get(0);
+        LOGGER.info("Assert received");
+
+
+        // resolve asset
+        HandlerId resolveHandlerId = resolveAssertion(ual);
+        assertThat(resolveHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
+        LOGGER.info("Asset resolved");
+
+        // sleep for 3 seconds to allow resolve to complete
+        Thread.sleep(3000);
+
+        // get resolved asset
+        ResolveResult resolvedAsset = getResolveResult(resolveHandlerId);
+        assertThat(resolvedAsset.getStatus()).isEqualTo(COMPLETED);
+        assertThat(resolvedAsset.getData().get(0).getType()).isEqualTo("asset");
+        LOGGER.info("Asset resolve result received");
 
 
         // entities search
@@ -193,7 +219,7 @@ public class DkgClientIntegrationTest {
 
 
         // assertion search
-        HandlerId assertionSearchHandlerId = assertionsSearch(randomAssetForTest);
+        HandlerId assertionSearchHandlerId = assertionsSearch(randomKeywordForTest);
         assertThat(assertionSearchHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
         LOGGER.info("Assertion search sent");
 
@@ -224,7 +250,7 @@ public class DkgClientIntegrationTest {
 
 
         // get proofs
-        HandlerId proofsQueryHandlerId = proofsQuery(randomKeywordForTest, Collections.singletonList(assertionId));
+        HandlerId proofsQueryHandlerId = proofsQuery(randomKeywordForTest, Collections.singletonList(ual));
         assertThat(assertionSearchHandlerId.getHandlerId()).matches(v -> v.matches(HANDLER_ID_REGEX));
         LOGGER.info("Proofs query sent");
 
@@ -236,7 +262,30 @@ public class DkgClientIntegrationTest {
         LOGGER.info("Proofs query result received");
     }
 
-    private HandlerId publishAssertion(String testKeyword, String randomAssetForTest) throws IOException {
+    private HandlerId provisionAsset(String testKeyword) throws IOException {
+        String assetFileName = "assertion-example.json";
+        ClassLoader classLoader = DkgClientIntegrationTest.class.getClassLoader();
+
+        URL assetFileUrl = classLoader.getResource(assetFileName);
+        if (assetFileUrl == null) {
+            throw new IllegalArgumentException("File not found: " + assetFileName);
+        }
+
+        File file = new File(assetFileUrl.getFile());
+        byte[] fileData = FileUtils.readFileToByteArray(file);
+
+        PublishOptions publishOptions = PublishOptions.builder(Collections.singletonList(testKeyword)).build();
+
+        CompletableFuture<HandlerId> publishHandlerIdCompletableFuture = dkgClient.provisionAsset(assetFileName, fileData, publishOptions);
+        return publishHandlerIdCompletableFuture.join();
+    }
+
+    private PublishResult getProvisionResult(HandlerId publishHandlerId) {
+        CompletableFuture<PublishResult> provisionResult = dkgClient.getProvisionAssetResult(publishHandlerId.getHandlerId());
+        return provisionResult.join();
+    }
+
+    private HandlerId publishAssertion(String testKeyword) throws IOException {
         String assertionFileName = "assertion-example.json";
         ClassLoader classLoader = DkgClientIntegrationTest.class.getClassLoader();
 
@@ -248,16 +297,14 @@ public class DkgClientIntegrationTest {
         File file = new File(assertionFileUrl.getFile());
         byte[] fileData = FileUtils.readFileToByteArray(file);
 
-        PublishOptions publishOptions = PublishOptions
-                .builder("[\"" + randomAssetForTest + "\"]")
-                .keywords("[\"" + testKeyword + "\"]").build();
+        PublishOptions publishOptions = PublishOptions.builder(Collections.singletonList(testKeyword)).build();
 
-        CompletableFuture<HandlerId> publishHandlerIdCompletableFuture = dkgClient.publish(assertionFileName, fileData, publishOptions);
+        CompletableFuture<HandlerId> publishHandlerIdCompletableFuture = dkgClient.publishAssertion(assertionFileName, fileData, publishOptions);
         return publishHandlerIdCompletableFuture.join();
     }
 
     private PublishResult getPublishResult(HandlerId publishHandlerId) {
-        CompletableFuture<PublishResult> publishResult = dkgClient.getPublishResult(publishHandlerId.getHandlerId());
+        CompletableFuture<PublishResult> publishResult = dkgClient.getPublishAssertionResult(publishHandlerId.getHandlerId());
         return publishResult.join();
     }
 
@@ -326,5 +373,28 @@ public class DkgClientIntegrationTest {
     private ProofsResult proofsQueryResult(HandlerId proofsHandlerId) {
         CompletableFuture<ProofsResult> proofsResult = dkgClient.getProofsResult(proofsHandlerId.getHandlerId());
         return proofsResult.join();
+    }
+
+    private String getAssertionJson(String name) {
+        return "{\"@context\": \"https://schema.org\",\n" +
+                "  \"@type\": \"Person\",\n" +
+                "  \"address\": {\n" +
+                "    \"@type\": \"PostalAddress\",\n" +
+                "    \"addressLocality\": \"Seattle\",\n" +
+                "    \"addressRegion\": \"WA\",\n" +
+                "    \"postalCode\": \"98052\",\n" +
+                "    \"streetAddress\": \"20341 Whitworth Institute 405 N. Whitworth\"\n" +
+                "  },\n" +
+                "  \"colleague\": [\n" +
+                "    \"http://www.xyz.edu/students/alicejones.html\",\n" +
+                "    \"http://www.xyz.edu/students/bobsmith.html\"\n" +
+                "  ],\n" +
+                "  \"email\": \"mailto:jane-doe@xyz.edu\",\n" +
+                "  \"image\": \"janedoe.jpg\",\n" +
+                "  \"jobTitle\": \"Professor\",\n" +
+                "  \"name\":" + name + ",\n" +
+                "  \"telephone\": \"(425) 123-4567\",\n" +
+                "  \"url\": \"http://www.janedoe.com\"\n" +
+                "}";
     }
 }

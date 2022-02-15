@@ -1,6 +1,7 @@
 package io.origintrail.dkg.client.service;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.origintrail.dkg.client.http.MultiPartBody;
 import io.origintrail.dkg.client.model.NQuad;
 import io.origintrail.dkg.client.model.SparqlQueryType;
 import io.origintrail.dkg.client.model.response.HandlerId;
@@ -36,9 +37,14 @@ public class QueryService {
                 .queryParameters(Collections.singletonMap("type", type.getValue()))
                 .build();
 
-        String sparqlQuery = createSparqlRequestBody(query);
-        HttpRequest request = apiRequestService.createHttpPOSTRequest(uri, sparqlQuery);
+//        String sparqlQuery = createSparqlRequestBody(query);
+//        HttpRequest request = apiRequestService.createHttpPOSTRequest(uri, sparqlQuery);
 
+        MultiPartBody.MultiPartBodyBuilder bodyPublisher = MultiPartBody
+                .builder()
+                .addPart("query", query);
+
+        HttpRequest request = apiRequestService.createMultiPartFormRequest(uri, bodyPublisher);
         return apiRequestService.sendAsyncRequest(request)
                 .thenApply(body -> apiRequestService.transformBody(body, HandlerId.class));
     }
@@ -67,17 +73,19 @@ public class QueryService {
                 .queryParameters("assertions", assertionIds)
                 .build();
 
-        String nQuadsQuery = createNQuadsQuery(nQuads);
-        HttpRequest request = apiRequestService.createHttpPOSTRequest(uri, nQuadsQuery);
+        MultiPartBody.MultiPartBodyBuilder bodyPublisher = MultiPartBody
+                .builder()
+                .addPart("nquads", nQuads.toString());
 
+        HttpRequest request = apiRequestService.createMultiPartFormRequest(uri, bodyPublisher);
         return apiRequestService.sendAsyncRequest(request)
                 .thenApply(body -> apiRequestService.transformBody(body, HandlerId.class));
     }
 
-    private String createNQuadsQuery(List<NQuad> nQuads) {
-        ObjectNode nQuadsObject = OBJECT_MAPPER.createObjectNode();
-        return nQuadsObject.putPOJO("nquads", nQuads).toString();
-    }
+//    private String createNQuadsQuery(List<NQuad> nQuads) {
+//        ObjectNode nQuadsObject = OBJECT_MAPPER.createObjectNode();
+//        return nQuadsObject.putPOJO("nquads", nQuads).toString();
+//    }
 
     public CompletableFuture<ProofsResult> getProofsResult(String handlerId) throws CompletionException {
         URI uri = UriUtil.builder().httpUrlOptions(apiRequestService.getHttpUrlOptions())

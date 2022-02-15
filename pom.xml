@@ -20,7 +20,8 @@
         <assertj.version>3.22.0</assertj.version>
         <slf4j.version>1.7.35</slf4j.version>
         <log4j.version>2.17.1</log4j.version>
-        <maven.enforcer.version>3.0.0</maven.enforcer.version>
+        <maven-enforcer.version>3.0.0</maven-enforcer.version>
+        <maven-source.version>3.2.0</maven-source.version>
     </properties>
 
     <dependencies>
@@ -47,6 +48,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
@@ -236,7 +242,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>${maven.enforcer.version}</version>
+                <version>${maven-enforcer.version}</version>
                 <executions>
                     <execution>
                         <id>enforce-versions</id>

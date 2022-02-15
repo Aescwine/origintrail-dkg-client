@@ -90,7 +90,7 @@ public class DkgClient {
     }
 
     /**
-     * Publish an Assertion on the DKG.
+     * Initiates publishing of an Assertion on the DKG.
      *
      * @param fileName       The file name for the data being published. Must have file extension {@code .json}.
      * @param fileData       {@code byte[]} of the file data being published.
@@ -102,13 +102,13 @@ public class DkgClient {
      * @throws RequestValidationException if {@code fileName} does not have file extension '.json',
      *                                    or {@code fileData} is not valid json, or {@code publishOptions} null.
      */
-    public CompletableFuture<HandlerId> publish(String fileName, byte[] fileData, PublishOptions publishOptions)
+    public CompletableFuture<HandlerId> publishAssertion(String fileName, byte[] fileData, PublishOptions publishOptions)
             throws CompletionException, RequestValidationException {
         return publishService.publish(fileName, fileData, publishOptions);
     }
 
     /**
-     * Publish an Assertion on the DKG.
+     * Initiates publishing of an Assertion on the DKG.
      *
      * @param filePath       A {@code String} containing the path to the assertion data to publish.
      *                       Must have file extension {@code .json}.
@@ -122,18 +122,20 @@ public class DkgClient {
      *                                    or {@code fileData} is not valid json,
      *                                    or {@code publishOptions} null.
      */
-    public CompletableFuture<HandlerId> publish(String filePath, PublishOptions publishOptions)
+    public CompletableFuture<HandlerId> publishAssertion(String filePath, PublishOptions publishOptions)
             throws CompletionException, RequestValidationException {
+        Path jsonFilePath = Paths.get(filePath);
+        byte[] fileBytes = readFileBytes(jsonFilePath);
+
+        return publishService.publish(jsonFilePath.getFileName().toString(), fileBytes, publishOptions);
+    }
+
+    private byte[] readFileBytes(Path filePath) {
         try {
-            Path publishFilePath = Paths.get(filePath);
-            Path publishFileName = publishFilePath.getFileName();
-
-            byte[] publishData = Files.readAllBytes(publishFilePath);
-
-            return publishService.publish(publishFileName.toString(), publishData, publishOptions);
+            return Files.readAllBytes(filePath);
         } catch (IOException e) {
-            LOGGER.error(String.format("Exception occurred reading publish data from file path: %s", filePath), e);
-            throw new RequestValidationException(String.format("Exception reading publish file: %s", filePath), e.getCause());
+            LOGGER.error(String.format("Exception occurred reading data from file path: %s", filePath), e);
+            throw new RequestValidationException(String.format("Exception reading file: %s", filePath), e.getCause());
         }
     }
 
@@ -146,9 +148,121 @@ public class DkgClient {
      *                             or if the response body is not in the expected format,
      *                             or if an unexpected exception occurs during processing of the request/response.
      */
-    public CompletableFuture<PublishResult> getPublishResult(String handlerId)
+    public CompletableFuture<PublishResult> getPublishAssertionResult(String handlerId)
             throws CompletionException {
         return publishService.getPublishResult(handlerId);
+    }
+
+    /**
+     * Initiates provisioning of an asset on the DKG.
+     *
+     * @param fileName       The file name for the data being published. Must have file extension {@code .json}.
+     * @param fileData       {@code byte[]} of the file data being provision.
+     * @param publishOptions {@link PublishOptions} containing additional request properties.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the provisioned DKG Asset.
+     * @throws CompletionException        if the call to the DKG API returns an error status code,
+     *                                    or if the response body is not in the expected format,
+     *                                    or if an unexpected exception occurs during processing of the request/response.
+     * @throws RequestValidationException if {@code fileName} does not have file extension '.json',
+     *                                    or {@code fileData} is not valid json, or {@code publishOptions} null.
+     */
+    public CompletableFuture<HandlerId> provisionAsset(String fileName, byte[] fileData, PublishOptions publishOptions)
+            throws CompletionException, RequestValidationException {
+        return publishService.provision(fileName, fileData, publishOptions);
+    }
+
+    /**
+     * Initiates provisioning of an asset on the DKG.
+     *
+     * @param filePath       A {@code String} containing the path to the asset data to provision.
+     *                       Must have file extension {@code .json}.
+     * @param publishOptions {@link PublishOptions} containing additional request properties.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the provisioned DKG Asset.
+     * @throws CompletionException        if the call to the DKG API returns an error status code,
+     *                                    or if the response body is not in the expected format,
+     *                                    or if an unexpected exception occurs during processing of the request/response.
+     * @throws RequestValidationException if {@code filePath} data cannot be read,
+     *                                    or {@code fileName} does not have file extension '.json',
+     *                                    or {@code fileData} is not valid json,
+     *                                    or {@code publishOptions} null.
+     */
+    public CompletableFuture<HandlerId> provisionAsset(String filePath, PublishOptions publishOptions)
+            throws CompletionException, RequestValidationException {
+        Path jsonFilePath = Paths.get(filePath);
+        Path fileName = jsonFilePath.getFileName();
+        byte[] fileBytes = readFileBytes(fileName);
+
+        return publishService.provision(fileName.toString(), fileBytes, publishOptions);
+    }
+
+    /**
+     * Get the result of a previous provision request.
+     *
+     * @param handlerId The {@code handler_id} returned in the provision response you want to retrieve.
+     * @return A {@code CompletableFuture<PublishResult>} containing a {@code PublishResult} representing the provision result.
+     * @throws CompletionException if the call to the DKG API returns an error status code,
+     *                             or if the response body is not in the expected format,
+     *                             or if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<PublishResult> getProvisionAssetResult(String handlerId)
+            throws CompletionException {
+        return publishService.getProvisionResult(handlerId);
+    }
+
+    /**
+     * Provision an Asset on the DKG.
+     *
+     * @param fileName       The file name for the data being published. Must have file extension {@code .json}.
+     * @param fileData       {@code byte[]} of the file data being provision.
+     * @param publishOptions {@link PublishOptions} containing additional request properties.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the provisioned DKG Asset.
+     * @throws CompletionException        if the call to the DKG API returns an error status code,
+     *                                    or if the response body is not in the expected format,
+     *                                    or if an unexpected exception occurs during processing of the request/response.
+     * @throws RequestValidationException if {@code fileName} does not have file extension '.json',
+     *                                    or {@code fileData} is not valid json, or {@code publishOptions} null.
+     */
+    public CompletableFuture<HandlerId> updateAsset(String fileName, byte[] fileData, PublishOptions publishOptions)
+            throws CompletionException, RequestValidationException {
+        return publishService.update(fileName, fileData, publishOptions);
+    }
+
+    /**
+     * Provision an Asset on the DKG.
+     *
+     * @param filePath       A {@code String} containing the path to the asset data to provision.
+     *                       Must have file extension {@code .json}.
+     * @param publishOptions {@link PublishOptions} containing additional request properties.
+     * @return A {@code CompletableFuture<HandlerId>} containing the {@link HandlerId} for the provisioned DKG Asset.
+     * @throws CompletionException        if the call to the DKG API returns an error status code,
+     *                                    or if the response body is not in the expected format,
+     *                                    or if an unexpected exception occurs during processing of the request/response.
+     * @throws RequestValidationException if {@code filePath} data cannot be read,
+     *                                    or {@code fileName} does not have file extension '.json',
+     *                                    or {@code fileData} is not valid json,
+     *                                    or {@code publishOptions} null.
+     */
+    public CompletableFuture<HandlerId> updateAsset(String filePath, PublishOptions publishOptions)
+            throws CompletionException, RequestValidationException {
+        Path jsonFilePath = Paths.get(filePath);
+        Path fileName = jsonFilePath.getFileName();
+        byte[] fileBytes = readFileBytes(fileName);
+
+        return publishService.update(fileName.toString(), fileBytes, publishOptions);
+    }
+
+    /**
+     * Get the result of a previous provision request.
+     *
+     * @param handlerId The {@code handler_id} returned in the provision response you want to retrieve.
+     * @return A {@code CompletableFuture<PublishResult>} containing a {@code PublishResult} representing the provision result.
+     * @throws CompletionException if the call to the DKG API returns an error status code,
+     *                             or if the response body is not in the expected format,
+     *                             or if an unexpected exception occurs during processing of the request/response.
+     */
+    public CompletableFuture<PublishResult> getUpdateAssetResult(String handlerId)
+            throws CompletionException {
+        return publishService.getUpdateResult(handlerId);
     }
 
     /**

@@ -3,6 +3,8 @@ package io.origintrail.dkg.client.model;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.List;
+
 /**
  * Class for encapsulating DKG POST /publish request properties.
  */
@@ -10,41 +12,41 @@ import lombok.ToString;
 @ToString
 public class PublishOptions {
 
-    private final String assets;
-    private final String keywords;
-    private final boolean visibility;
+    private final List<String> keywords;
+    private final Visibility visibility;
+    private final String ual;
 
-    PublishOptions(String assets, String keywords, boolean visibility) {
-        this.assets = assets;
+    PublishOptions(List<String> keywords, Visibility visibility, String ual) {
         this.keywords = keywords;
         this.visibility = visibility;
+        this.ual = ual;
     }
 
-    public static PublishOptionsBuilder builder(String assets) {
-        return new PublishOptionsBuilder(assets);
+    public static PublishOptionsBuilder builder(List<String> keywords) {
+        return new PublishOptionsBuilder(keywords);
     }
 
     public static class PublishOptionsBuilder {
-        private final String assets;
-        private String keywords;
-        private boolean visibility = true;
+        private final List<String> keywords;
+        private Visibility visibility = Visibility.PUBLIC;
+        private String ual;
 
-        PublishOptionsBuilder(String assets) {
-            this.assets = assets;
-        }
-
-        public PublishOptionsBuilder keywords(String keywords) {
+        PublishOptionsBuilder(List<String> keywords) {
             this.keywords = keywords;
-            return this;
         }
 
-        public PublishOptionsBuilder visibility(boolean visibility) {
+        public PublishOptionsBuilder visibility(Visibility visibility) {
             this.visibility = visibility;
             return this;
         }
 
+        public PublishOptionsBuilder ual(String ual) {
+            this.ual = ual;
+            return this;
+        }
+
         public PublishOptions build() {
-            return new PublishOptions(assets, keywords, visibility);
+            return new PublishOptions(keywords, visibility, ual);
         }
     }
 }

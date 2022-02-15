@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
 @Data
-public class Assertion {
+public class DataResult {
     private Metadata metadata;
-    private Blockchain blockchain;
-    private String id;
-    private String signature;
     private JsonNode data;
 }
